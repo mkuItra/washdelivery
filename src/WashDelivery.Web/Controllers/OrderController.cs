@@ -9,6 +9,7 @@ using WashDelivery.Web.ViewModels.Orders;
 using WashDelivery.Application.DTOs.Orders;
 using WashDelivery.Application.DTOs.Common;
 using System.Text.Json;
+using System.Globalization;
 
 namespace WashDelivery.Web.Controllers;
 
@@ -322,7 +323,9 @@ public class OrderController : Controller
             {
                 PickupAddressId = model.PickupAddressId,
                 DeliveryAddressId = model.DeliveryAddressId,
-                PickupTime = model.PickupTimeOption == "scheduled" ? DateTime.Parse(model.PickupTime!) : DateTime.Now.AddHours(1),
+                PickupTime = model.PickupTimeOption == "scheduled" 
+                    ? TimeZoneInfo.ConvertTimeToUtc(DateTime.Parse(model.PickupTime!), TimeZoneInfo.FindSystemTimeZoneById("Europe/Warsaw"))
+                    : DateTime.UtcNow.AddHours(1),
                 LeaveAtDoor = model.LeaveAtDoor,
                 CourierInstructions = model.CourierInstructions
             };
