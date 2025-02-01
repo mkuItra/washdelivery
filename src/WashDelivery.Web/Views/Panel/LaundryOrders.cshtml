@@ -121,6 +121,19 @@
                                             </span>
                                         </div>
                                     </div>
+                                    <div class="flex space-x-3">
+                                        @if (order.Status == OrderStatus.PickedUp)
+                                        {
+                                            <form asp-action="ConfirmArrival" asp-controller="Order" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="orderId" value="@order.Id" />
+                                                <button type="submit"
+                                                    class="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500">
+                                                    Potwierdź odbiór w pralni
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
                                 </div>
                                 <div class="mt-4">
                                     <div class="text-sm text-gray-600">
