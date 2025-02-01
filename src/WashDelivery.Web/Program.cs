@@ -21,11 +21,24 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure Kestrel
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    serverOptions.Listen(System.Net.IPAddress.Parse("0.0.0.0"), 5000);  // HTTP
-    serverOptions.Listen(System.Net.IPAddress.Parse("0.0.0.0"), 5001, listenOptions =>
+    var urls = builder.Configuration.GetValue<string>("ASPNETCORE_URLS")?.Split(';') 
+        ?? new[] { "http://localhost:5000", "https://localhost:5001" };
+
+    foreach (var url in urls)
     {
-        listenOptions.UseHttps();
-    });
+        var uri = new Uri(url);
+        if (uri.Scheme == "https")
+        {
+            serverOptions.Listen(IPAddress.Parse("127.0.0.1"), uri.Port, listenOptions =>
+            {
+                listenOptions.UseHttps();
+            });
+        }
+        else
+        {
+            serverOptions.Listen(IPAddress.Parse("127.0.0.1"), uri.Port);
+        }
+    }
 });
 
 // Configure timezone
@@ -40,8 +53,9 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 // Configure HTTPS
 builder.Services.AddHttpsRedirection(options =>
 {
-    options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+    options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
     options.HttpsPort = 5001;
+    options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
 });
 
 // Configure HSTS
@@ -50,6 +64,7 @@ builder.Services.AddHsts(options =>
     options.Preload = true;
     options.IncludeSubDomains = true;
     options.MaxAge = TimeSpan.FromDays(365);
+    options.ExcludedHosts.Clear();
 });
 
 // Add services to the container.
@@ -81,7 +96,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("SignalRPolicy", builder =>
     {
         builder
-            .WithOrigins("http://localhost:5000", "https://localhost:5001")
+            .SetIsOriginAllowed(_ => true)
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
@@ -175,16 +190,17 @@ using (var scope = app.Services.CreateScope())
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
 }
 
+// Order is important here
+app.UseHsts();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseRouting();
 
-// Add CORS before auth middleware
+// Add CORS before auth middleware but after HTTPS redirection
 app.UseCors("SignalRPolicy");
 
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
