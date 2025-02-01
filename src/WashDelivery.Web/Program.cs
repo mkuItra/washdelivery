@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 using WashDelivery.Infrastructure;
 using WashDelivery.Infrastructure.Data;
 using WashDelivery.Domain.Entities;
@@ -20,8 +21,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure Kestrel
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    serverOptions.ListenAnyIP(5000);  // HTTP
-    serverOptions.ListenAnyIP(5001, listenOptions =>
+    serverOptions.Listen(System.Net.IPAddress.Parse("0.0.0.0"), 5000);  // HTTP
+    serverOptions.Listen(System.Net.IPAddress.Parse("0.0.0.0"), 5001, listenOptions =>
     {
         listenOptions.UseHttps();
     });
@@ -34,6 +35,21 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     var supportedCultures = new[] { new System.Globalization.CultureInfo("pl-PL") };
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
+});
+
+// Configure HTTPS
+builder.Services.AddHttpsRedirection(options =>
+{
+    options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+    options.HttpsPort = 5001;
+});
+
+// Configure HSTS
+builder.Services.AddHsts(options =>
+{
+    options.Preload = true;
+    options.IncludeSubDomains = true;
+    options.MaxAge = TimeSpan.FromDays(365);
 });
 
 // Add services to the container.
