@@ -1,0 +1,60 @@
+@using WashDelivery.Domain.Enums
+@using WashDelivery.Domain.Constants
+@model IEnumerable<WashDelivery.Application.DTOs.Orders.OrderDto>
+
+@if (Model?.Any() == true)
+{
+    <div class="space-y-4">
+        @foreach (var order in Model)
+        {
+            <div class="bg-white shadow ring-1 ring-gray-900/5 rounded-lg p-4">
+                <div class="flex flex-col space-y-2">
+                    <div class="flex justify-between items-start">
+                        <p class="text-sm font-medium text-gray-900">Zamówienie #@order.Id</p>
+                        <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset 
+                            @(order.Status switch {
+                                OrderStatus.AwaitingPickup => "bg-yellow-50 text-yellow-700 ring-yellow-600/20",
+                                OrderStatus.ReadyForDelivery => "bg-purple-50 text-purple-700 ring-purple-600/20",
+                                _ => "bg-gray-50 text-gray-700 ring-gray-600/20"
+                            })">
+                            @OrderStatusDisplayNames.GetDisplayName(order.Status)
+                        </span>
+                    </div>
+                    @if (order.Status == OrderStatus.AwaitingPickup)
+                    {
+                        <p class="text-sm text-gray-500">
+                            Odbiór: @order.PickupAddress.Street @order.PickupAddress.BuildingNumber, @order.PickupAddress.City
+                        </p>
+                    }
+                    else if (order.Status == OrderStatus.ReadyForDelivery)
+                    {
+                        <p class="text-sm text-gray-500">
+                            Dostawa: @order.DeliveryAddress.Street @order.DeliveryAddress.BuildingNumber, @order.DeliveryAddress.City
+                        </p>
+                    }
+                    <p class="text-sm text-gray-500">
+                        Czas: @order.PickupTime.ToString("dd.MM.yyyy HH:mm")
+                    </p>
+                    <p class="text-sm font-medium text-indigo-600">
+                        Opłata: @order.DeliveryFee.ToString("C")
+                    </p>
+
+                    <div class="flex space-x-2 mt-2">
+                        <form asp-action="Accept" asp-controller="Order" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="orderId" value="@order.Id" />
+                            <button type="submit"
+                                class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
+                                Przyjmij zlecenie
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p class="text-sm text-gray-500">Brak dostępnych zamówień.</p>
+} 

@@ -1,0 +1,88 @@
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@{
+    var token = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+}
+
+<script>
+    let hubConnection;
+
+    async function requestNotificationPermission() {
+        try {
+            const permission = await Notification.requestPermission();
+            if (permission === "granted") {
+                console.log("Notification permission granted");
+            } else {
+                console.log("Notification permission denied");
+            }
+        } catch (error) {
+            console.error("Error requesting notification permission:", error);
+        }
+    }
+
+    function showNotification(title, body) {
+        if (Notification.permission === "granted") {
+            new Notification(title, {
+                body: body,
+                icon: "/images/logo.png"
+            });
+        }
+    }
+
+    async function initializeSignalR() {
+        hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/orderHub")
+            .withAutomaticReconnect()
+            .build();
+
+        hubConnection.on("NewOrderAvailable", (order) => {
+            if (document.visibilityState === "hidden") {
+                showNotification("Nowe zlecenie dostępne!", 
+                    `Nowe zlecenie #${order.id} oczekuje na przyjęcie.`);
+            }
+            location.reload();
+        });
+
+        hubConnection.on("OrderStatusChanged", (orderId, newStatus) => {
+            location.reload();
+        });
+
+        try {
+            await hubConnection.start();
+            console.log("SignalR Connected");
+            await requestNotificationPermission();
+        } catch (err) {
+            console.error("Error starting SignalR:", err);
+        }
+    }
+
+    async function reportPickupProblem(orderId) {
+        const reason = prompt('Podaj powód problemu z odbiorem:');
+        if (reason) {
+            try {
+                const response = await fetch('/Order/ReportPickupProblem', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': '@token'
+                    },
+                    body: JSON.stringify({
+                        orderId: orderId,
+                        reason: reason
+                    })
+                });
+
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    throw new Error('Failed to report pickup problem');
+                }
+            } catch (err) {
+                console.error('Error reporting pickup problem:', err);
+                alert('Wystąpił błąd podczas zgłaszania problemu z odbiorem');
+            }
+        }
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', initializeSignalR);
+</script> 

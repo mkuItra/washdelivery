@@ -1,0 +1,338 @@
+@using WashDelivery.Application.DTOs.Laundries
+@model WashDelivery.Web.ViewModels.Orders.LaundryDetailsViewModel
+
+@{
+    ViewData["Title"] = "Wybierz usługi";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-3xl mx-auto">
+        <nav class="flex items-center justify-center" aria-label="Progress">
+            <ol role="list" class="flex items-center">
+                <li class="relative">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div class="h-0.5 w-full bg-green-600"></div>
+                    </div>
+                    <a href="@Url.Action("Create")" class="relative w-8 h-8 flex items-center justify-center bg-green-600 rounded-full hover:bg-green-900">
+                        <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="sr-only">Krok 1</span>
+                    </a>
+                </li>
+                <li class="relative">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div class="h-0.5 w-full bg-gray-200"></div>
+                    </div>
+                    <a href="#" class="relative w-8 h-8 flex items-center justify-center bg-white border-2 border-green-600 rounded-full" aria-current="step">
+                        <span class="h-2.5 w-2.5 bg-green-600 rounded-full" aria-hidden="true"></span>
+                        <span class="sr-only">Krok 2</span>
+                    </a>
+                </li>
+                <li class="relative">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div class="h-0.5 w-full bg-gray-200"></div>
+                    </div>
+                    <a href="#" class="group relative w-8 h-8 flex items-center justify-center bg-white border-2 border-gray-300 rounded-full hover:border-gray-400">
+                        <span class="h-2.5 w-2.5 bg-transparent rounded-full group-hover:bg-gray-300" aria-hidden="true"></span>
+                        <span class="sr-only">Krok 3</span>
+                    </a>
+                </li>
+            </ol>
+        </nav>
+
+        <div class="mt-8">
+            <h2 class="text-lg font-medium text-gray-900">Wybierz usługi</h2>
+            <p class="mt-1 text-sm text-gray-500">
+                Wybierz usługi, które chcesz zamówić.
+            </p>
+
+            <div class="mt-6">
+                <div class="flow-root">
+                    <!-- Service groups -->
+                    <div class="space-y-6">
+                        <!-- Delivery time group -->
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-900 mb-3">Wybierz czas realizacji</h3>
+                            <ul role="list" class="space-y-2">
+                                @foreach (var service in Model.AvailableLaundries.First().Services.Where(s => !s.IsExtraService))
+                                {
+                                    <li>
+                                        <div onclick="toggleServiceInGroup('@service.Id')" 
+                                             id="service-box-@service.Id"
+                                             data-service='@Json.Serialize(new { 
+                                                 id = service.Id, 
+                                                 name = service.Name, 
+                                                 description = service.Description, 
+                                                 price = service.Price, 
+                                                 unit = service.Unit, 
+                                                 isExtraService = service.IsExtraService 
+                                             })'
+                                             class="flex border-2 border-gray-200 rounded-lg p-3 hover:border-indigo-500 cursor-pointer active:bg-gray-50 transition-all duration-200">
+                                            <div class="flex-1">
+                                                <div class="flex justify-between text-base font-medium text-gray-900">
+                                                    <h3>
+                                                        <span>@service.Name</span>
+                                                    </h3>
+                                                    <p class="ml-4">@service.Price zł/@service.Unit</p>
+                                                </div>
+                                                <p class="mt-1 text-sm text-gray-500">@service.Description</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+
+                        <!-- Additional services group -->
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-900 mb-3">Usługi dodatkowe</h3>
+                            <div id="extra-services-info" class="mb-3 text-sm text-gray-500 hidden">
+                                Wybierz najpierw czas realizacji
+                            </div>
+                            <div id="extra-services-list" class="opacity-50 pointer-events-none">
+                                <ul role="list" class="space-y-2">
+                                    @foreach (var service in Model.AvailableLaundries.First().Services.Where(s => s.IsExtraService))
+                                    {
+                                        <li>
+                                            <div onclick="toggleExtraService('@service.Id')" 
+                                                 id="service-box-@service.Id"
+                                                 data-service='@Json.Serialize(new { 
+                                                     id = service.Id, 
+                                                     name = service.Name, 
+                                                     description = service.Description, 
+                                                     price = service.Price, 
+                                                     unit = service.Unit, 
+                                                     isExtraService = service.IsExtraService 
+                                                 })'
+                                                 class="flex border-2 border-gray-200 rounded-lg p-3 hover:border-indigo-500 cursor-pointer active:bg-gray-50 transition-all duration-200">
+                                                <div class="flex-1">
+                                                    <div class="flex justify-between text-base font-medium text-gray-900">
+                                                        <h3>
+                                                            <span>@service.Name</span>
+                                                        </h3>
+                                                        <div class="text-right">
+                                                            <p class="regular-price">@service.Price zł/@service.Unit</p>
+                                                            <p class="express-price text-sm text-indigo-600 hidden">
+                                                                @(service.Price * 1.5m) zł/@service.Unit
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <p class="mt-1 text-sm text-gray-500">@service.Description</p>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex justify-end space-x-4">
+                        <a href="@Url.Action("Create")" class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Wstecz</a>
+                        <button type="button" onclick="saveAndContinue()" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Dalej</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const laundries = @Html.Raw(Json.Serialize(Model.AvailableLaundries));
+        console.log('Available laundries:', laundries);
+        
+        let selectedLaundryId = null;
+        let selectedServices = [];
+        let selectedExtraServices = [];
+
+        function selectLaundry(laundryId) {
+            selectedLaundryId = laundryId;
+            const laundry = laundries.find(l => l.id === laundryId);
+            if (!laundry) return;
+
+            // Update UI
+            document.querySelectorAll('[data-laundry]').forEach(el => {
+                el.classList.remove('border-indigo-500', 'bg-indigo-50');
+                el.classList.add('border-gray-200');
+            });
+            
+            const selectedEl = document.querySelector(`[data-laundry="${laundryId}"]`);
+            if (selectedEl) {
+                selectedEl.classList.remove('border-gray-200');
+                selectedEl.classList.add('border-indigo-500', 'bg-indigo-50');
+            }
+
+            // Show services
+            document.getElementById('services-section').classList.remove('hidden');
+            
+            // Update services list
+            const servicesList = document.getElementById('services-list');
+            servicesList.innerHTML = laundry.services
+                .filter(s => !s.isExtra)
+                .map(service => `
+                    <div class="border-2 rounded-lg p-4 hover:border-indigo-500 cursor-pointer active:bg-gray-50 
+                               ${selectedServices.some(s => s.serviceId === service.id) ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200'}
+                               transition-all duration-200"
+                         onclick="toggleServiceInGroup('${service.id}', '${service.name}', ${service.price}, ${service.isExtra})">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">${service.name}</p>
+                                <p class="text-sm text-gray-500">${service.price} zł/szt</p>
+                            </div>
+                            <div>
+                                <input type="number" 
+                                       class="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                       value="${selectedServices.find(s => s.serviceId === service.id)?.quantity || 1}"
+                                       onchange="updateServiceQuantity('${service.id}', this.value)"
+                                       onclick="event.stopPropagation()"
+                                       min="1">
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+            // Update extra services list
+            const extraServicesList = document.getElementById('extra-services-list');
+            extraServicesList.innerHTML = laundry.services
+                .filter(s => s.isExtra)
+                .map(service => `
+                    <div class="border-2 rounded-lg p-4 hover:border-indigo-500 cursor-pointer active:bg-gray-50 
+                               ${selectedExtraServices.some(s => s.serviceId === service.id) ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200'}
+                               transition-all duration-200"
+                         onclick="toggleExtraService('${service.id}', '${service.name}', ${service.price}, ${service.isExtra})">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">${service.name}</p>
+                                <p class="text-sm text-gray-500">${service.price} zł/szt</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+        }
+
+        function toggleServiceInGroup(serviceId) {
+            const serviceBox = document.getElementById(`service-box-${serviceId}`);
+            const serviceData = JSON.parse(serviceBox.dataset.service);
+            const index = selectedServices.findIndex(s => s.serviceId === serviceId);
+
+            if (index === -1) {
+                selectedServices.push({
+                    serviceId: serviceData.id,
+                    name: serviceData.name,
+                    price: serviceData.price,
+                    quantity: 1,
+                    isExtra: serviceData.isExtraService
+                });
+                serviceBox.classList.add('border-indigo-500');
+                serviceBox.classList.remove('border-gray-200');
+
+                // Enable extra services when a delivery time is selected
+                const extraServicesList = document.getElementById('extra-services-list');
+                extraServicesList.classList.remove('opacity-50', 'pointer-events-none');
+                document.getElementById('extra-services-info').classList.add('hidden');
+            } else {
+                selectedServices.splice(index, 1);
+                serviceBox.classList.remove('border-indigo-500');
+                serviceBox.classList.add('border-gray-200');
+
+                // If no delivery time is selected, disable extra services
+                if (selectedServices.length === 0) {
+                    const extraServicesList = document.getElementById('extra-services-list');
+                    extraServicesList.classList.add('opacity-50', 'pointer-events-none');
+                    document.getElementById('extra-services-info').classList.remove('hidden');
+                }
+            }
+        }
+
+        function toggleExtraService(serviceId) {
+            const serviceBox = document.getElementById(`service-box-${serviceId}`);
+            const serviceData = JSON.parse(serviceBox.dataset.service);
+            const index = selectedExtraServices.findIndex(s => s.serviceId === serviceId);
+
+            if (index === -1) {
+                selectedExtraServices.push({
+                    serviceId: serviceData.id,
+                    name: serviceData.name,
+                    price: serviceData.price,
+                    quantity: 1,
+                    isExtra: serviceData.isExtraService
+                });
+                serviceBox.classList.add('border-indigo-500');
+                serviceBox.classList.remove('border-gray-200');
+            } else {
+                selectedExtraServices.splice(index, 1);
+                serviceBox.classList.remove('border-indigo-500');
+                serviceBox.classList.add('border-gray-200');
+            }
+        }
+
+        function updateServiceQuantity(serviceId, quantity) {
+            const service = selectedServices.find(s => s.serviceId === serviceId);
+            if (service) {
+                service.quantity = parseInt(quantity);
+            }
+        }
+
+        async function saveAndContinue() {
+            try {
+                // Combine regular and extra services
+                const allServices = [...selectedServices, ...selectedExtraServices];
+
+                if (allServices.length === 0) {
+                    alert('Wybierz co najmniej jedną usługę');
+                    return;
+                }
+                
+                // Map services to match ServiceItemViewModel format
+                const items = allServices.map(service => ({
+                    ServiceId: service.serviceId,
+                    Name: service.name,
+                    Price: service.price,
+                    Quantity: service.quantity || 1,
+                    IsExtra: service.isExtra
+                }));
+
+                console.log('Sending services:', items);
+
+                // Save services to draft order
+                const response = await fetch('@Url.Action("SaveServices", "Order")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-XSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ items })
+                });
+
+                console.log('Response status:', response.status);
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+
+                if (!response.ok) {
+                    throw new Error(`Failed to save services: ${response.status} ${responseText}`);
+                }
+
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (e) {
+                    throw new Error('Invalid JSON response from server');
+                }
+
+                if (!result.success) {
+                    throw new Error(result.message || 'Failed to save services');
+                }
+
+                // Redirect to summary page
+                window.location.href = '@Url.Action("Summary", "Order")';
+            } catch (error) {
+                console.error('Error saving services:', error);
+                alert('Wystąpił błąd podczas zapisywania usług: ' + error.message);
+            }
+        }
+    </script>
+} 

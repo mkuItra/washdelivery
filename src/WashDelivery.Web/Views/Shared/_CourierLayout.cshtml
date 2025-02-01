@@ -1,0 +1,11 @@
+@{
+    Layout = "_Layout";
+}
+
+@RenderBody()
+
+@section Scripts {
+    <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <partial name="_CourierNotifications" />
+    @await RenderSectionAsync("Scripts", required: false)
+} 

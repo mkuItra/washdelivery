@@ -1,0 +1,88 @@
+@model WashDelivery.Web.ViewModels.Orders.CustomerOrderListViewModel
+@using WashDelivery.Domain.Enums
+@using WashDelivery.Domain.Constants
+
+@{
+    ViewData["Title"] = "Moje zamówienia";
+}
+
+<div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
+    <div class="px-4 py-6 sm:p-8">
+        <div class="flex items-center justify-between">
+            <h2 class="text-base font-semibold leading-7 text-gray-900">Moje zamówienia</h2>
+            <a asp-controller="Order" asp-action="Create"
+                class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
+                Nowe zamówienie
+            </a>
+        </div>
+
+        @if (!Model.Orders.Any())
+        {
+            <p class="mt-4 text-sm text-gray-500">Nie masz jeszcze żadnych zamówień.</p>
+        }
+        else
+        {
+            <div class="mt-4 divide-y divide-gray-100">
+                @foreach (var order in Model.Orders)
+                {
+                    <div class="py-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-900">
+                                    <a asp-controller="Order" asp-action="Details" asp-route-id="@order.Id" 
+                                       class="hover:text-indigo-600">
+                                        Zamówienie #@order.Id
+                                    </a>
+                                </h3>
+                                <p class="mt-1 text-xs text-gray-500">
+                                    Utworzono: @order.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset
+                                    @(order.Status == OrderStatus.Delivered ? "bg-green-50 text-green-700 ring-green-600/20" :
+                                      order.Status == OrderStatus.Cancelled ? "bg-red-50 text-red-700 ring-red-600/20" :
+                                      "bg-blue-50 text-blue-700 ring-blue-700/10")">
+                                    @OrderStatusDisplayNames.GetDisplayName(order.Status)
+                                </span>
+                                <a asp-controller="Order" asp-action="Details" asp-route-id="@order.Id"
+                                   class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                                    Szczegóły →
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function cancelOrder(orderId) {
+            if (!confirm('Czy na pewno chcesz anulować to zamówienie?')) return;
+
+            try {
+                const response = await fetch(`/api/orders/${orderId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({
+                        newStatus: '@OrderStatus.Cancelled',
+                        comment: 'Anulowane przez klienta'
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to cancel order');
+
+                window.location.reload();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Wystąpił błąd podczas anulowania zamówienia');
+            }
+        }
+    </script>
+} 

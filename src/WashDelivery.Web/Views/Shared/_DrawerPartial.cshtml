@@ -1,0 +1,23 @@
+@model (string Id, string Title, string ContentId)
+
+<div id="@Model.Id" 
+     class="drawer fixed inset-0 overflow-hidden translate-y-full transition-transform duration-300 z-50" 
+     aria-labelledby="@($"{Model.Id}-title")" 
+     role="dialog" 
+     aria-modal="true">
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="drawer-overlay absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="hideDrawer('@Model.Id')"></div>
+        <div class="pointer-events-none fixed inset-x-0 bottom-0 flex max-w-full">
+            <div class="relative w-full">
+                <div class="pointer-events-auto bg-white rounded-t-xl">
+                    <div class="h-1.5 w-12 bg-gray-300 rounded-full mx-auto my-3"></div>
+                    <div class="px-4 sm:px-6">
+                        <h2 class="text-lg font-medium text-gray-900" id="@($"{Model.Id}-title")">@Model.Title</h2>
+                    </div>
+                    <div id="@Model.ContentId" class="mt-6 px-4 sm:px-6 pb-6">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

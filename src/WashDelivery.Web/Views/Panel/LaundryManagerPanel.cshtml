@@ -1,0 +1,137 @@
+@using WashDelivery.Web.Controllers
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+
+@{
+    ViewData["Title"] = "Panel kierownika pralni";
+    var hasLaundry = ViewBag.HasLaundry ?? false;
+    bool isActive = ViewBag.LaundryIsActive ?? false;
+    var pendingOrders = ViewBag.PendingOrders as int? ?? 0;
+    var inProgressOrders = ViewBag.InProgressOrders as int? ?? 0;
+    var todayDeliveries = ViewBag.TodayDeliveries as int? ?? 0;
+    var token = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+    
+    var laundryName = ViewBag.LaundryName as string;
+    var laundryAddress = ViewBag.LaundryAddress as string;
+    var laundryEmail = ViewBag.LaundryEmail as string;
+    var laundryPhone = ViewBag.LaundryPhone as string;
+}
+
+@Html.AntiForgeryToken()
+
+<div class="min-h-full">
+    <div class="py-10">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="space-y-10">
+                <!-- Status section -->
+                <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-base font-semibold leading-7 text-gray-900">Panel kierownika pralni</h2>
+                            <p class="mt-1 text-sm text-gray-500">
+                                @if (!hasLaundry)
+                                {
+                                    <text>Nie masz przypisanej pralni. Skontaktuj się z administratorem.</text>
+                                }
+                                else
+                                {
+                                    <text>Zarządzaj pralnią i zamówieniami.</text>
+                                }
+                            </p>
+                        </div>
+                    </div>
+
+                    @if (hasLaundry)
+                    {
+                        <!-- Quick Actions -->
+                        <div class="mt-6 border-t border-gray-100 pt-6">
+                            <h3 class="text-base font-semibold leading-7 text-gray-900">Status pralni</h3>
+                            <div class="mt-4">
+                                <div class="rounded-lg bg-white shadow ring-1 ring-gray-900/5">
+                                    <div class="px-4 py-5 sm:p-6">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-sm text-gray-500" id="laundryStatus">
+                                                    Pralnia jest aktualnie <span class="font-semibold @(isActive ? "text-green-600" : "text-red-600")">@(isActive ? "aktywna" : "nieaktywna")</span>
+                                                </p>
+                                            </div>
+                                            <div class="flex space-x-3">
+                                                <form asp-action="ToggleLaundryStatus" asp-controller="Panel" method="post" class="inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit"
+                                                        class="rounded-md @(isActive ? "bg-red-600 hover:bg-red-500" : "bg-green-600 hover:bg-green-500") px-4 py-2 text-sm font-semibold text-white shadow-sm">
+                                                        @(isActive ? "Dezaktywuj" : "Aktywuj")
+                                                    </button>
+                                                </form>
+                                                <a href="@Url.Action("LaundryOrders", "Panel")" 
+                                                   class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
+                                                    Lista zamówień
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Statistics -->
+                        <div class="mt-6 border-t border-gray-100 pt-6">
+                            <h3 class="text-base font-semibold leading-7 text-gray-900">Statystyki</h3>
+                            <dl class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                <div class="relative overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6 ring-1 ring-gray-900/5" data-stat="pending">
+                                    <dt class="truncate text-sm font-medium text-gray-500">Oczekujące zamówienia</dt>
+                                    <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">@pendingOrders</dd>
+                                </div>
+                                <div class="relative overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6 ring-1 ring-gray-900/5" data-stat="inProgress">
+                                    <dt class="truncate text-sm font-medium text-gray-500">W realizacji</dt>
+                                    <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">@inProgressOrders</dd>
+                                </div>
+                                <div class="relative overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6 ring-1 ring-gray-900/5" data-stat="todayDeliveries">
+                                    <dt class="truncate text-sm font-medium text-gray-500">Dzisiejsze dostawy</dt>
+                                    <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">@todayDeliveries</dd>
+                                </div>
+                            </dl>
+                        </div>
+
+                        <!-- Laundry Information -->
+                        <div class="mt-6 border-t border-gray-100 pt-6">
+                            <h3 class="text-base font-semibold leading-7 text-gray-900">Informacje o pralni</h3>
+                            <div class="mt-4">
+                                <div class="rounded-lg bg-white shadow ring-1 ring-gray-900/5">
+                                    <div class="px-4 py-5 sm:p-6">
+                                        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                                            <div>
+                                                <dt class="text-sm font-medium text-gray-500">Nazwa pralni</dt>
+                                                <dd class="mt-1 text-sm text-gray-900">@laundryName</dd>
+                                            </div>
+                                            <div>
+                                                <dt class="text-sm font-medium text-gray-500">Adres</dt>
+                                                <dd class="mt-1 text-sm text-gray-900">@laundryAddress</dd>
+                                            </div>
+                                            <div>
+                                                <dt class="text-sm font-medium text-gray-500">Email kontaktowy</dt>
+                                                <dd class="mt-1 text-sm text-gray-900">@laundryEmail</dd>
+                                            </div>
+                                            <div>
+                                                <dt class="text-sm font-medium text-gray-500">Telefon kontaktowy</dt>
+                                                <dd class="mt-1 text-sm text-gray-900">@laundryPhone</dd>
+                                            </div>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @if (hasLaundry)
+    {
+        <script>
+            // Any other scripts can go here
+        </script>
+    }
+} 

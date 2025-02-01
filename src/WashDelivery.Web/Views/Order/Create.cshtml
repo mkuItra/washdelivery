@@ -1,0 +1,529 @@
+@using WashDelivery.Web.Extensions
+@model WashDelivery.Web.ViewModels.Orders.CreateOrderViewModel
+
+@{
+    ViewData["Title"] = "Nowe zamówienie";
+}
+
+@{
+    var tokens = Context.GetAntiXsrfTokens();
+}
+<input type="hidden" name="__RequestVerificationToken" value="@tokens.RequestToken">
+
+<div class="min-h-screen bg-gray-50">
+    <!-- Progress bar -->
+    <div class="relative py-4 px-4 sm:px-6 lg:px-8 bg-white shadow">
+        <div class="max-w-3xl mx-auto">
+            <nav class="flex items-center justify-center" aria-label="Progress">
+                <ol role="list" class="flex items-center">
+                    <li class="relative">
+                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                            <div class="h-0.5 w-full bg-green-600"></div>
+                        </div>
+                        <a href="#" class="relative w-8 h-8 flex items-center justify-center bg-white border-2 border-green-600 rounded-full" aria-current="step">
+                            <span class="h-2.5 w-2.5 bg-green-600 rounded-full" aria-hidden="true"></span>
+                            <span class="sr-only">Krok 1</span>
+                        </a>
+                    </li>
+                    <li class="relative">
+                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                            <div class="h-0.5 w-full bg-gray-200"></div>
+                        </div>
+                        <a href="#" class="relative w-8 h-8 flex items-center justify-center bg-white border-2 border-gray-300 rounded-full hover:border-gray-400">
+                            <span class="h-2.5 w-2.5 bg-transparent rounded-full group-hover:bg-gray-300" aria-hidden="true"></span>
+                            <span class="sr-only">Krok 2</span>
+                        </a>
+                    </li>
+                    <li class="relative">
+                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                            <div class="h-0.5 w-full bg-gray-200"></div>
+                        </div>
+                        <a href="#" class="group relative w-8 h-8 flex items-center justify-center bg-white border-2 border-gray-300 rounded-full hover:border-gray-400">
+                            <span class="h-2.5 w-2.5 bg-transparent rounded-full group-hover:bg-gray-300" aria-hidden="true"></span>
+                            <span class="sr-only">Krok 3</span>
+                        </a>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="px-4 py-6 sm:px-0">
+            <div class="bg-white shadow sm:rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Wybierz adresy</h3>
+                    <div class="mt-2 max-w-xl text-sm text-gray-500">
+                        <p>Wybierz adresy odbioru i dostawy oraz termin odbioru.</p>
+                    </div>
+
+                    <div id="validation-errors" class="hidden mt-4">
+                        <div class="rounded-md bg-red-50 p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-red-800">Znaleziono następujące błędy:</h3>
+                                    <div class="mt-2 text-sm text-red-700" id="validation-errors-list"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 space-y-6">
+                        <!-- Pickup address -->
+                        <button type="button" onclick="showAddressDrawer('pickup')" class="w-full text-left">
+                            <div class="bg-white shadow sm:rounded-lg hover:shadow-md transition-shadow duration-200">
+                                <div class="px-4 py-5 sm:p-6">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h3 class="text-lg leading-6 font-medium text-gray-900">Adres odbioru</h3>
+                                            <div class="mt-2" id="pickup-address-display">
+                                                <p class="text-sm text-gray-500">Wybierz adres odbioru</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-indigo-600">
+                                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </button>
+
+                        <!-- Same as pickup checkbox -->
+                        <div class="px-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="sameAsPickup" 
+                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                       onchange="toggleDeliveryAddress(this.checked)">
+                                <label for="sameAsPickup" class="ml-2 block text-sm text-gray-900">
+                                    Adres dostawy taki sam jak odbioru
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Delivery address -->
+                        <div id="deliveryAddressSection">
+                            <button type="button" onclick="showAddressDrawer('delivery')" class="w-full text-left">
+                                <div class="bg-white shadow sm:rounded-lg hover:shadow-md transition-shadow duration-200">
+                                    <div class="px-4 py-5 sm:p-6">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h3 class="text-lg leading-6 font-medium text-gray-900">Adres dostawy</h3>
+                                                <div class="mt-2" id="delivery-address-display">
+                                                    <p class="text-sm text-gray-500">Wybierz adres dostawy</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-indigo-600">
+                                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+
+                        <!-- Pickup time and additional options -->
+                        <div class="bg-white shadow sm:rounded-lg">
+                            <div class="px-4 py-5 sm:p-6 space-y-6">
+                                <div>
+                                    <h3 class="text-lg leading-6 font-medium text-gray-900">Data i godzina odbioru</h3>
+                                    <div class="mt-2 space-y-4">
+                                        <div class="flex items-center">
+                                            <input type="radio" 
+                                                   name="pickup-time-option" 
+                                                   id="pickup-time-asap" 
+                                                   value="asap"
+                                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                                                   onchange="togglePickupTimeOption(this.value)">
+                                            <label for="pickup-time-asap" class="ml-2 block text-sm text-gray-900">
+                                                Jak najszybciej
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="radio" 
+                                                   name="pickup-time-option" 
+                                                   id="pickup-time-scheduled" 
+                                                   value="scheduled"
+                                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                                                   onchange="togglePickupTimeOption(this.value)">
+                                            <label for="pickup-time-scheduled" class="ml-2 block text-sm text-gray-900">
+                                                Zaplanuj termin
+                                            </label>
+                                        </div>
+                                        <div id="pickup-time-input-container" class="hidden">
+                                            <input type="datetime-local" 
+                                                   name="pickup-time" 
+                                                   id="pickup-time" 
+                                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                   min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="border-t border-gray-200 pt-6">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <span class="text-sm font-medium text-gray-900">Zostaw pod drzwiami</span>
+                                        </div>
+                                        <button type="button" 
+                                                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 bg-gray-200" 
+                                                role="switch" 
+                                                aria-checked="false" 
+                                                id="leave-at-door">
+                                            <span aria-hidden="true" 
+                                                  class="pointer-events-none absolute inset-0 rounded-full transition-colors duration-200 ease-in-out"></span>
+                                            <span class="translate-x-0 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+                                        </button>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <button type="button" onclick="showInstructionsDrawer()" class="text-sm text-indigo-600 hover:text-indigo-500">
+                                            + Dodaj instrukcje dla kuriera
+                                        </button>
+                                        <div id="courier-instructions-display" class="mt-1 text-sm text-gray-500">
+                                            Brak instrukcji
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end">
+                        <button type="button" onclick="nextStep()" 
+                                class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Dalej
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<wash-drawer id="address-drawer">
+    <span slot="title">Wybierz adres</span>
+    <div class="max-w-lg mx-auto p-4 box-content">
+        <div id="addresses-list" class="space-y-4"></div>
+        <div class="mt-6">
+            <a href="@Url.Action("Create", "Address")" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <svg class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+                Dodaj nowy adres
+            </a>
+        </div>
+    </div>
+</wash-drawer>
+
+<wash-drawer id="instructions-drawer">
+    <span slot="title">Instrukcje dla kuriera</span>
+    <div class="max-w-lg mx-auto p-4 box-content">
+        <div id="instructions-content"></div>
+    </div>
+</wash-drawer>
+
+@section Scripts {
+    <script src="~/js/components/wash-drawer.js"></script>
+    <script>
+        // Clear localStorage if this is a new order (not navigating between steps)
+        if (!document.referrer.includes('/Order/')) {
+            localStorage.removeItem('orderData');
+        }
+
+        const addresses = @Html.Raw(Json.Serialize(Model.AvailableAddresses));
+        console.log('Available addresses:', addresses);
+        
+        let selectedPickupAddressId = null;
+        let selectedDeliveryAddressId = null;
+        let selectedPickupTime = null;
+        let leaveAtDoor = false;
+        let courierInstructions = null;
+
+        // Find default address
+        const defaultAddress = addresses.find(a => a.isDefault);
+
+        // Load saved data from localStorage
+        const orderData = JSON.parse(localStorage.getItem('orderData') || '{}');
+        if (orderData.addressStep) {
+            selectedPickupAddressId = orderData.addressStep.pickupAddressId;
+            selectedDeliveryAddressId = orderData.addressStep.deliveryAddressId;
+            selectedPickupTime = orderData.addressStep.pickupTime;
+            leaveAtDoor = orderData.addressStep.leaveAtDoor;
+            courierInstructions = orderData.addressStep.courierInstructions;
+
+            // Update UI with saved data
+            const pickupAddress = addresses.find(a => a.id === selectedPickupAddressId);
+            const deliveryAddress = addresses.find(a => a.id === selectedDeliveryAddressId);
+            if (pickupAddress) updateAddressDisplay('pickup', formatAddress(pickupAddress));
+            if (deliveryAddress) updateAddressDisplay('delivery', formatAddress(deliveryAddress));
+            
+            // Restore same as pickup checkbox state
+            if (orderData.addressStep.sameAsPickup) {
+                document.getElementById('sameAsPickup').checked = true;
+                toggleDeliveryAddress(true);
+            }
+            
+            // Restore time selector state
+            if (orderData.addressStep.pickupTimeOption) {
+                const option = document.querySelector(`input[name="pickup-time-option"][value="${orderData.addressStep.pickupTimeOption}"]`);
+                if (option) {
+                    option.checked = true;
+                    togglePickupTimeOption(orderData.addressStep.pickupTimeOption);
+                }
+            }
+            
+            if (selectedPickupTime) {
+                document.getElementById('pickup-time').value = selectedPickupTime;
+            }
+            
+            if (leaveAtDoor) document.getElementById('leave-at-door').click();
+            updateInstructionsDisplay(courierInstructions);
+        } else if (defaultAddress) {
+            // Initialize with default address
+            selectedPickupAddressId = defaultAddress.id;
+            selectedDeliveryAddressId = defaultAddress.id;
+            
+            // Update displays with default address
+            updateAddressDisplay('pickup', formatAddress(defaultAddress));
+            updateAddressDisplay('delivery', formatAddress(defaultAddress));
+            
+            // Save to localStorage
+            const currentData = JSON.parse(localStorage.getItem('orderData') || '{}');
+            currentData.addressStep = {
+                pickupAddressId: defaultAddress.id,
+                deliveryAddressId: defaultAddress.id,
+                pickupAddress: defaultAddress,
+                deliveryAddress: defaultAddress
+            };
+            localStorage.setItem('orderData', JSON.stringify(currentData));
+        }
+
+        function showAddressDrawer(type) {
+            const currentSelectedId = type === 'pickup' ? selectedPickupAddressId : selectedDeliveryAddressId;
+            
+            // Clear previous addresses
+            const addressesList = document.getElementById('addresses-list');
+            addressesList.innerHTML = addresses.map(address => `
+                <div class="border-2 rounded-lg p-4 hover:border-indigo-500 cursor-pointer active:bg-gray-50 
+                           ${address.id === currentSelectedId ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200'}
+                           transition-all duration-200"
+                     onclick="selectAddress('${type}', '${address.id}')">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-900">${address.street} ${address.buildingNumber}</p>
+                            <p class="text-sm text-gray-500">${address.postalCode} ${address.city}</p>
+                            ${address.additionalInstructions ? `
+                                <p class="text-sm text-gray-500 mt-1">${address.additionalInstructions}</p>
+                            ` : ''}
+                        </div>
+                    </div>
+                    ${address.isDefault ? `
+                        <div class="mt-2">
+                            <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                Domyślny
+                            </span>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+            
+            document.getElementById('address-drawer').show();
+        }
+
+        function selectAddress(type, addressId) {
+            const address = addresses.find(a => a.id === addressId);
+            if (!address) return;
+
+            if (type === 'pickup') {
+                selectedPickupAddressId = addressId;
+                updateAddressDisplay('pickup', formatAddress(address));
+            } else {
+                selectedDeliveryAddressId = addressId;
+                updateAddressDisplay('delivery', formatAddress(address));
+            }
+            
+            document.getElementById('address-drawer').hide();
+
+            // Save to localStorage with full address data
+            const currentData = JSON.parse(localStorage.getItem('orderData') || '{}');
+            currentData.addressStep = {
+                ...currentData.addressStep,
+                pickupAddressId: selectedPickupAddressId,
+                deliveryAddressId: selectedDeliveryAddressId,
+                pickupAddress: type === 'pickup' ? address : currentData.addressStep?.pickupAddress,
+                deliveryAddress: type === 'delivery' ? address : currentData.addressStep?.deliveryAddress
+            };
+            localStorage.setItem('orderData', JSON.stringify(currentData));
+        }
+
+        function formatAddress(address) {
+            return `
+                <p class="text-sm font-medium text-gray-900">${address.street} ${address.buildingNumber}${address.apartmentNumber ? '/' + address.apartmentNumber : ''}</p>
+                <p class="text-sm text-gray-500">${address.postalCode} ${address.city}</p>
+                ${address.additionalInstructions ? `<p class="mt-1 text-sm text-gray-500">${address.additionalInstructions}</p>` : ''}
+            `;
+        }
+
+        function updateAddressDisplay(type, displayText) {
+            document.getElementById(`${type}-address-display`).innerHTML = displayText || 'Nie wybrano adresu';
+        }
+
+        function showInstructionsDrawer() {
+            const drawer = document.getElementById('instructions-drawer');
+            const content = document.getElementById('instructions-content');
+            
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <textarea id="instructions-input"
+                              class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                              rows="4"
+                              placeholder="Np. Kod do domofonu: 1234">${courierInstructions || ''}</textarea>
+                    <button type="button"
+                            onclick="saveInstructions()"
+                            class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Zapisz
+                    </button>
+                </div>
+            `;
+            
+            drawer.show();
+        }
+
+        function saveInstructions() {
+            courierInstructions = document.getElementById('instructions-input').value;
+            updateInstructionsDisplay(courierInstructions);
+            document.getElementById('instructions-drawer').hide();
+
+            // Save to localStorage
+            const currentData = JSON.parse(localStorage.getItem('orderData') || '{}');
+            currentData.addressStep = {
+                ...currentData.addressStep,
+                courierInstructions
+            };
+            localStorage.setItem('orderData', JSON.stringify(currentData));
+        }
+
+        function updateInstructionsDisplay(instructions) {
+            document.getElementById('courier-instructions-display').textContent = instructions || 'Brak instrukcji';
+        }
+
+        function toggleDeliveryAddress(checked) {
+            const deliverySection = document.getElementById('deliveryAddressSection');
+            
+            if (checked) {
+                const pickupText = document.getElementById('pickup-address-display').innerHTML;
+                document.getElementById('delivery-address-display').innerHTML = pickupText;
+                deliverySection.classList.add('opacity-50', 'pointer-events-none');
+                selectedDeliveryAddressId = selectedPickupAddressId;
+            } else {
+                deliverySection.classList.remove('opacity-50', 'pointer-events-none');
+                document.getElementById('delivery-address-display').innerHTML = '<p class="text-sm text-gray-500">Wybierz adres dostawy</p>';
+                selectedDeliveryAddressId = null;
+            }
+
+            // Save to localStorage
+            const currentData = JSON.parse(localStorage.getItem('orderData') || '{}');
+            currentData.addressStep = {
+                ...currentData.addressStep,
+                deliveryAddressId: selectedDeliveryAddressId,
+                sameAsPickup: checked
+            };
+            localStorage.setItem('orderData', JSON.stringify(currentData));
+        }
+
+        // Initialize leave at door toggle
+        const leaveAtDoorToggle = document.getElementById('leave-at-door');
+        leaveAtDoorToggle.addEventListener('click', function() {
+            const isChecked = this.getAttribute('aria-checked') === 'true';
+            this.setAttribute('aria-checked', !isChecked);
+            const bgSpan = this.querySelector('span[aria-hidden="true"]');
+            bgSpan.classList.toggle('bg-gray-200');
+            bgSpan.classList.toggle('bg-indigo-600');
+            this.querySelector('span:not([aria-hidden])').classList.toggle('translate-x-5');
+            this.querySelector('span:not([aria-hidden])').classList.toggle('translate-x-0');
+            leaveAtDoor = !isChecked;
+
+            // Save to localStorage
+            const currentData = JSON.parse(localStorage.getItem('orderData') || '{}');
+            currentData.addressStep = {
+                ...currentData.addressStep,
+                leaveAtDoor
+            };
+            localStorage.setItem('orderData', JSON.stringify(currentData));
+        });
+
+        function togglePickupTimeOption(value) {
+            const container = document.getElementById('pickup-time-input-container');
+            if (value === 'scheduled') {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+
+            // Save to localStorage
+            const currentData = JSON.parse(localStorage.getItem('orderData') || '{}');
+            currentData.addressStep = {
+                ...currentData.addressStep,
+                pickupTimeOption: value
+            };
+            localStorage.setItem('orderData', JSON.stringify(currentData));
+        }
+
+        async function nextStep() {
+            const pickupTimeOption = document.querySelector('input[name="pickup-time-option"]:checked')?.value;
+            const pickupTime = pickupTimeOption === 'scheduled' ? document.getElementById('pickup-time').value : null;
+
+            // Validate required fields
+            const errors = [];
+            if (!selectedPickupAddressId) errors.push('Wybierz adres odbioru');
+            if (!selectedDeliveryAddressId) errors.push('Wybierz adres dostawy');
+            if (!pickupTimeOption) errors.push('Wybierz opcję terminu odbioru');
+            if (pickupTimeOption === 'scheduled' && !pickupTime) errors.push('Wybierz datę i godzinę odbioru');
+
+            if (errors.length > 0) {
+                const validationErrorsList = document.getElementById('validation-errors-list');
+                validationErrorsList.innerHTML = errors.map(error => `<p>• ${error}</p>`).join('');
+                document.getElementById('validation-errors').classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const response = await fetch('@Url.Action("SaveAddressDetails", "Order")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-XSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({
+                        pickupAddressId: selectedPickupAddressId,
+                        deliveryAddressId: selectedDeliveryAddressId,
+                        pickupTimeOption,
+                        pickupTime,
+                        leaveAtDoor,
+                        courierInstructions
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to save address details');
+                }
+
+                // Proceed to next step
+                window.location.href = '@Url.Action("LaundryDetails")';
+            } catch (error) {
+                console.error('Error saving address details:', error);
+                alert('Wystąpił błąd podczas zapisywania danych adresowych');
+            }
+        }
+    </script>
+} 

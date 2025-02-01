@@ -1,0 +1,397 @@
+@using WashDelivery.Application.DTOs
+@using WashDelivery.Web.ViewModels
+@model UserSettingsViewModel
+@{
+    ViewData["Title"] = "Ustawienia";
+}
+
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="rounded-md bg-green-50 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-green-800">
+                        @TempData["SuccessMessage"]
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="space-y-10 divide-y divide-gray-900/10">
+        <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
+            <div class="px-4 sm:px-0">
+                <h2 class="text-base font-semibold leading-7 text-gray-900">Dane osobowe</h2>
+                <p class="mt-1 text-sm leading-6 text-gray-600">
+                    Zaktualizuj swoje dane osobowe i kontaktowe.
+                </p>
+            </div>
+
+            <form id="settingsForm" asp-action="Settings" asp-controller="Panel" method="post" class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
+                @Html.AntiForgeryToken()
+                <div class="px-4 py-6 sm:p-8">
+                    <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                        <div class="sm:col-span-3">
+                            <label asp-for="FirstName" class="block text-sm font-medium leading-6 text-gray-900">Imię</label>
+                            <div class="mt-2">
+                                <input asp-for="FirstName" type="text"
+                                       class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                <span asp-validation-for="FirstName" class="text-sm text-red-600"></span>
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-3">
+                            <label asp-for="LastName" class="block text-sm font-medium leading-6 text-gray-900">Nazwisko</label>
+                            <div class="mt-2">
+                                <input asp-for="LastName" type="text"
+                                       class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                <span asp-validation-for="LastName" class="text-sm text-red-600"></span>
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-4">
+                            <label asp-for="Email" class="block text-sm font-medium leading-6 text-gray-900">Email</label>
+                            <div class="mt-2">
+                                <input asp-for="Email" type="email"
+                                       class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                <span asp-validation-for="Email" class="text-sm text-red-600"></span>
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-4">
+                            <label asp-for="PhoneNumber" class="block text-sm font-medium leading-6 text-gray-900">Telefon</label>
+                            <div class="mt-2">
+                                <input asp-for="PhoneNumber" type="tel"
+                                       class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                <span asp-validation-for="PhoneNumber" class="text-sm text-red-600"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8">
+                    <button type="submit"
+                            class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled>
+                        Zapisz zmiany
+                    </button>
+                </div>
+            </form>
+        </div>
+        @if (User.IsInRole(Roles.Customer))
+        {
+            <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
+                <div class="px-4 sm:px-0">
+                    <h2 class="text-base font-semibold leading-7 text-gray-900">Adresy dostawy</h2>
+                    <p class="mt-1 text-sm leading-6 text-gray-600">
+                        Zarządzaj swoimi adresami dostawy.
+                    </p>
+                </div>
+
+                <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
+                    <div class="px-4 py-6 sm:p-8">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium">Twoje adresy</h3>
+                            <button type="button" onclick="showAddAddressModal()"
+                                class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
+                                Dodaj adres
+                            </button>
+                        </div>
+
+                        <div class="divide-y divide-gray-200">
+                            @foreach (var address in ViewBag.Addresses)
+                            {
+                                <div class="p-4 mb-4 flex justify-between items-center bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                    <div>
+                                        <p class="font-medium text-gray-900 mb-1">@address.Name</p>
+                                        <p class="text-sm text-gray-500">@address.Street @address.BuildingNumber @address.ApartmentNumber</p>
+                                        <p class="text-sm text-gray-500">@address.PostalCode @address.City</p>
+                                        @if (!string.IsNullOrEmpty(address.AdditionalInstructions))
+                                        {
+                                            <p class="text-sm text-gray-500 mt-1 italic">@address.AdditionalInstructions</p>
+                                        }
+                                        @if (address.IsDefault)
+                                        {
+                                            <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                                Domyślny
+                                            </span>
+                                        }
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button type="button" onclick="editAddress('@address.Id')"
+                                            class="px-3 py-1 text-sm text-indigo-600 hover:text-indigo-900 rounded-md hover:bg-indigo-50">
+                                            Edytuj
+                                        </button>
+                                        @if (!address.IsDefault)
+                                        {
+                                            <button type="button" onclick="deleteAddress('@address.Id')"
+                                                class="px-3 py-1 text-sm text-red-600 hover:text-red-900 rounded-md hover:bg-red-50">
+                                                Usuń
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Address Modal -->
+<div id="addressModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 overflow-y-auto">
+    <div class="flex min-h-full items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div class="flex justify-between items-center p-6 pb-0">
+                <h3 class="text-lg font-medium" id="modalTitle">Dodaj adres</h3>
+                <button type="button" onclick="hideAddressModal()" class="text-gray-400 hover:text-gray-500">
+                    <span class="sr-only">Zamknij</span>
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form id="addressForm" class="p-6">
+                <input type="hidden" id="addressId" name="id" />
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Nazwa adresu</label>
+                        <input type="text" id="addressName" name="name" required
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                               placeholder="np. Dom, Praca">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Ulica</label>
+                        <input type="text" id="street" name="street" required
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nr budynku</label>
+                            <input type="text" id="buildingNumber" name="buildingNumber" required
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nr mieszkania</label>
+                            <input type="text" id="apartmentNumber" name="apartmentNumber"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Kod pocztowy</label>
+                            <input type="text" id="postalCode" name="postalCode" required
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Miasto</label>
+                            <input type="text" id="city" name="city" required
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Dodatkowe instrukcje</label>
+                        <textarea id="additionalInstructions" name="additionalInstructions"
+                                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                  rows="2"></textarea>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <input type="checkbox" id="isDefault" name="isDefault"
+                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <label class="ml-2 block text-sm text-gray-900">Ustaw jako domyślny adres</label>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" onclick="hideAddressModal()"
+                            class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+                        Anuluj
+                    </button>
+                    <button type="submit"
+                            class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500">
+                        Zapisz
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function() {
+            const form = document.getElementById('settingsForm');
+            
+            if (!form) {
+                return;
+            }
+
+            const submitButton = form.querySelector('button[type="submit"]');
+            const inputs = form.querySelectorAll('input');
+            
+            // Zapisz początkowe wartości
+            const originalValues = Array.from(inputs).reduce((acc, input) => {
+                acc[input.id] = input.value.trim();
+                return acc;
+            }, {});
+            
+            function hasChanges() {
+                return Array.from(inputs).some(input => {
+                    const hasChanged = input.value.trim() !== originalValues[input.id];
+                    return hasChanged;
+                });
+            }
+
+            function updateButton() {
+                const changed = hasChanges();
+                const valid = form.checkValidity();
+                
+                submitButton.disabled = !changed || !valid;
+                submitButton.classList.toggle('opacity-50', !changed || !valid);
+                submitButton.classList.toggle('cursor-not-allowed', !changed || !valid);
+            }
+
+            // Nasłuchuj na wszystkie możliwe zmiany
+            inputs.forEach(input => {
+                ['input', 'change', 'keyup', 'paste'].forEach(event => {
+                    input.addEventListener(event, () => {
+                        updateButton();
+                    });
+                });
+            });
+
+            // Zapobiegaj wysłaniu jeśli nie ma zmian
+            form.addEventListener('submit', (e) => {
+                if (!hasChanges()) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            // Inicjalne ustawienie
+            updateButton();
+        })();
+
+        // Address management
+        const addressModal = document.getElementById('addressModal');
+        const addressForm = document.getElementById('addressForm');
+        const modalTitle = document.getElementById('modalTitle');
+
+        function showAddAddressModal() {
+            modalTitle.textContent = 'Dodaj adres';
+            addressForm.reset();
+            addressForm.dataset.mode = 'add';
+            addressModal.classList.remove('hidden');
+        }
+
+        function hideAddressModal() {
+            addressModal.classList.add('hidden');
+            addressForm.reset();
+        }
+
+        async function editAddress(addressId) {
+            modalTitle.textContent = 'Edytuj adres';
+            addressForm.dataset.mode = 'edit';
+            
+            try {
+                const response = await fetch(`/api/panel/addresses/${addressId}`);
+                if (!response.ok) throw new Error('Failed to fetch address');
+                
+                const address = await response.json();
+                
+                document.getElementById('addressId').value = address.id;
+                document.getElementById('addressName').value = address.name;
+                document.getElementById('street').value = address.street;
+                document.getElementById('buildingNumber').value = address.buildingNumber;
+                document.getElementById('apartmentNumber').value = address.apartmentNumber || '';
+                document.getElementById('postalCode').value = address.postalCode;
+                document.getElementById('city').value = address.city;
+                document.getElementById('additionalInstructions').value = address.additionalInstructions || '';
+                document.getElementById('isDefault').checked = address.isDefault;
+                
+                addressModal.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Wystąpił błąd podczas pobierania danych adresu');
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `fixed bottom-4 right-4 p-4 rounded-lg shadow-lg ${
+                type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+            }`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        async function deleteAddress(addressId) {
+            if (!confirm('Czy na pewno chcesz usunąć ten adres?')) return;
+            
+            try {
+                const response = await fetch(`/api/panel/addresses/${addressId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to delete address');
+                
+                showNotification('Adres został usunięty');
+                window.location.reload();
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Wystąpił błąd podczas usuwania adresu', 'error');
+            }
+        }
+
+        addressForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(addressForm);
+            const data = Object.fromEntries(formData);
+            data.isDefault = data.isDefault === "on";
+            const mode = addressForm.dataset.mode;
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            try {
+                const response = await fetch(`/api/panel/addresses${mode === 'edit' ? `/${data.id}` : ''}`, {
+                    method: mode === 'edit' ? 'PUT' : 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token,
+                        'X-CSRF-TOKEN': token
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(`Failed to save address: ${error}`);
+                }
+                
+                showNotification(mode === 'edit' ? 'Adres został zaktualizowany' : 'Adres został dodany');
+                hideAddressModal();
+                window.location.reload();
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Wystąpił błąd podczas zapisywania adresu', 'error');
+            }
+        });
+    </script>
+} 

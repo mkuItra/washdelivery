@@ -1,0 +1,59 @@
+@model IEnumerable<WashDelivery.Application.DTOs.Orders.OrderDto>
+@using WashDelivery.Domain.Enums
+
+@if (Model.Any())
+{
+    <div class="space-y-4">
+        @foreach (var order in Model)
+        {
+            <div class="bg-white shadow ring-1 ring-gray-900/5 rounded-lg p-4" data-order-id="@order.Id">
+                <div class="flex flex-col space-y-2">
+                    <div class="flex justify-between items-start">
+                        <p class="text-sm font-medium text-gray-900">Zamówienie #@order.Id</p>
+                        <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                            @(order.Status == OrderStatus.AwaitingPickup ? "Do odbioru" : "Do dostarczenia")
+                        </span>
+                    </div>
+                    @if (order.Status == OrderStatus.AwaitingPickup)
+                    {
+                        <p class="text-sm text-gray-500">
+                            Odbiór: @order.PickupAddress.Street @order.PickupAddress.BuildingNumber, @order.PickupAddress.City
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="text-sm text-gray-500">
+                            Dostawa: @order.DeliveryAddress.Street @order.DeliveryAddress.BuildingNumber, @order.DeliveryAddress.City
+                        </p>
+                    }
+                    <p class="text-sm text-gray-500">
+                        Czas: @order.PickupTime.ToString("dd.MM.yyyy HH:mm")
+                    </p>
+                    <p class="text-sm font-medium text-indigo-600">
+                        Opłata: @order.DeliveryFee.ToString("C")
+                    </p>
+                    <div class="flex gap-2 mt-2">
+                        <form action="/Order/Accept" method="post" class="flex-1">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="orderId" value="@order.Id" />
+                            <button type="submit" class="w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
+                                Akceptuj
+                            </button>
+                        </form>
+                        <form action="/Order/Reject" method="post" class="flex-1">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="orderId" value="@order.Id" />
+                            <button type="submit" class="w-full rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                                Odrzuć
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p class="text-sm text-gray-500">Brak dostępnych zleceń.</p>
+} 

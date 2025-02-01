@@ -1,0 +1,118 @@
+@model WashDelivery.Application.DTOs.Orders.OrderDto
+@using WashDelivery.Domain.Enums
+@using WashDelivery.Domain.Constants
+@{
+    ViewData["Title"] = $"Zamówienie #{Model.Id}";
+
+    string GetStatusDisplay(OrderStatus status)
+    {
+        return OrderStatusDisplayNames.GetDisplayName(status);
+    }
+}
+
+<div class="min-h-full">
+    <div class="py-10">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="space-y-10">
+                <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl p-6">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-base font-semibold leading-7 text-gray-900">Szczegóły zamówienia #@Model.Id</h2>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Pełne informacje o zamówieniu.
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset
+                            @(Model.Status == OrderStatus.Delivered ? "bg-green-50 text-green-700 ring-green-600/20" :
+                              Model.Status == OrderStatus.Cancelled ? "bg-red-50 text-red-700 ring-red-600/20" :
+                              "bg-blue-50 text-blue-700 ring-blue-700/10")">
+                            @GetStatusDisplay(Model.Status)
+                        </span>
+                    </div>
+
+                    <!-- Order Details -->
+                    <div class="mt-6 border-t border-gray-100 pt-6">
+                        <dl class="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-900">Adres odbioru</dt>
+                                <dd class="mt-1 text-sm text-gray-500">
+                                    @Model.PickupAddress.Street @Model.PickupAddress.BuildingNumber<br />
+                                    @if (!string.IsNullOrEmpty(Model.PickupAddress.ApartmentNumber))
+                                    {
+                                        <span>m. @Model.PickupAddress.ApartmentNumber<br /></span>
+                                    }
+                                    @Model.PickupAddress.PostalCode @Model.PickupAddress.City
+                                    @if (!string.IsNullOrEmpty(Model.PickupAddress.AdditionalInstructions))
+                                    {
+                                        <br /><span class="text-xs">Dodatkowe instrukcje: @Model.PickupAddress.AdditionalInstructions</span>
+                                    }
+                                </dd>
+                            </div>
+
+                            <div>
+                                <dt class="text-sm font-medium text-gray-900">Adres dostawy</dt>
+                                <dd class="mt-1 text-sm text-gray-500">
+                                    @Model.DeliveryAddress.Street @Model.DeliveryAddress.BuildingNumber<br />
+                                    @if (!string.IsNullOrEmpty(Model.DeliveryAddress.ApartmentNumber))
+                                    {
+                                        <span>m. @Model.DeliveryAddress.ApartmentNumber<br /></span>
+                                    }
+                                    @Model.DeliveryAddress.PostalCode @Model.DeliveryAddress.City
+                                    @if (!string.IsNullOrEmpty(Model.DeliveryAddress.AdditionalInstructions))
+                                    {
+                                        <br /><span class="text-xs">Dodatkowe instrukcje: @Model.DeliveryAddress.AdditionalInstructions</span>
+                                    }
+                                </dd>
+                            </div>
+
+                            <div>
+                                <dt class="text-sm font-medium text-gray-900">Daty</dt>
+                                <dd class="mt-1 text-sm text-gray-500">
+                                    <div>Utworzono: @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                                    <div>Planowany odbiór: @Model.PickupTime.ToString("dd.MM.yyyy HH:mm")</div>
+                                    @if (Model.Status == OrderStatus.Delivered)
+                                    {
+                                        <div>Dostarczono: @Model.UpdatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                                    }
+                                </dd>
+                            </div>
+
+                            <div>
+                                <dt class="text-sm font-medium text-gray-900">Opłaty</dt>
+                                <dd class="mt-1 text-sm text-gray-500">
+                                    <div>Opłata za dostawę: @Model.DeliveryFee.ToString("C")</div>
+                                </dd>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(Model.CourierId))
+                            {
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-900">Kurier</dt>
+                                    <dd class="mt-1 text-sm text-gray-500">
+                                        ID: @Model.CourierId
+                                    </dd>
+                                </div>
+                            }
+                        </dl>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="mt-6 border-t border-gray-100 pt-6">
+                        <div class="flex justify-end gap-x-3">
+                            <a href="@Url.Action("List")" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                                Powrót do listy
+                            </a>
+                            @if (Model.Status == OrderStatus.PendingLaundryAssignment)
+                            {
+                                <button onclick="cancelOrder('@Model.Id')" class="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500">
+                                    Anuluj zamówienie
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

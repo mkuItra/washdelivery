@@ -1,0 +1,207 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = WashDelivery.Web
+build_property.RootNamespace = WashDelivery.Web
+build_property.ProjectDir = /home/jakub/projects/WashDelivery/src/WashDelivery.Web/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /home/jakub/projects/WashDelivery/src/WashDelivery.Web
+build_property._RazorSourceGeneratorDebug = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/AboutUs/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWJvdXRVcy9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9Mb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Account/RegisterCourier.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9SZWdpc3RlckNvdXJpZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Account/RegisterCustomer.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9SZWdpc3RlckN1c3RvbWVyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Admin/CreateUser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vQ3JlYXRlVXNlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Admin/EditUser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vRWRpdFVzZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Admin/PendingCouriers.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vUGVuZGluZ0NvdXJpZXJzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Admin/Users.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vVXNlcnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/ContactUs/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ29udGFjdFVzL0luZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Laundry/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvTGF1bmRyeS9DcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Laundry/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvTGF1bmRyeS9FZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Laundry/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvTGF1bmRyeS9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Laundry/Workers.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvTGF1bmRyeS9Xb3JrZXJzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/NotFound/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvTm90Rm91bmQvSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Order/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvT3JkZXIvQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Order/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvT3JkZXIvRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Order/LaundryDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvT3JkZXIvTGF1bmRyeURldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Order/List.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvT3JkZXIvTGlzdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Order/Summary.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvT3JkZXIvU3VtbWFyeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Panel/AdminPanel.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFuZWwvQWRtaW5QYW5lbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Panel/CompletedOrders.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFuZWwvQ29tcGxldGVkT3JkZXJzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Panel/CourierPanel.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFuZWwvQ291cmllclBhbmVsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Panel/CustomerPanel.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFuZWwvQ3VzdG9tZXJQYW5lbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Panel/LaundryManagerPanel.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFuZWwvTGF1bmRyeU1hbmFnZXJQYW5lbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Panel/LaundryOrders.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFuZWwvTGF1bmRyeU9yZGVycy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Panel/Profile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFuZWwvUHJvZmlsZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Panel/Settings.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFuZWwvU2V0dGluZ3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Panel/_ActiveOrders.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFuZWwvX0FjdGl2ZU9yZGVycy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Panel/_AssignedOrders.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFuZWwvX0Fzc2lnbmVkT3JkZXJzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Panel/_AvailableOrders.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFuZWwvX0F2YWlsYWJsZU9yZGVycy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0Vycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Shared/_AssignedOrders.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19Bc3NpZ25lZE9yZGVycy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Shared/_AvailableOrders.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19BdmFpbGFibGVPcmRlcnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Shared/_CourierLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19Db3VyaWVyTGF5b3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Shared/_CourierNotifications.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19Db3VyaWVyTm90aWZpY2F0aW9ucy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Shared/_DrawerPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19EcmF3ZXJQYXJ0aWFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Shared/_FooterPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19Gb290ZXJQYXJ0aWFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Shared/_HeaderPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19IZWFkZXJQYXJ0aWFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Shared/_LaundryNotifications.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19MYXVuZHJ5Tm90aWZpY2F0aW9ucy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Shared/_LoginPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19Mb2dpblBhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Shared/_ProfileDropdown.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19Qcm9maWxlRHJvcGRvd24uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Shared/_RoleBadgePartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19Sb2xlQmFkZ2VQYXJ0aWFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/jakub/projects/WashDelivery/src/WashDelivery.Web/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 

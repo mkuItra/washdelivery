@@ -1,0 +1,77 @@
+@model IEnumerable<WashDelivery.Application.DTOs.Orders.OrderDto>
+@using WashDelivery.Domain.Enums
+@using WashDelivery.Domain.Constants
+
+@if (Model.Any())
+{
+    <div class="space-y-4">
+        @foreach (var order in Model)
+        {
+            <div class="bg-white shadow ring-1 ring-gray-900/5 rounded-lg p-4">
+                <div class="flex flex-col space-y-2">
+                    <div class="flex justify-between items-start">
+                        <p class="text-sm font-medium text-gray-900">Zamówienie #@order.Id</p>
+                        <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
+                            @OrderStatusDisplayNames.GetDisplayName(order.Status)
+                        </span>
+                    </div>
+                    @if (order.Status == OrderStatus.PickupInProgress)
+                    {
+                        <p class="text-sm text-gray-500">
+                            Transport do pralni
+                            <br />
+                            Odbiór: @order.PickupAddress.Street @order.PickupAddress.BuildingNumber, @order.PickupAddress.City
+                        </p>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="confirmPickup('@order.Id')"
+                                class="flex-1 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
+                                Potwierdź odbiór
+                            </button>
+                        </div>
+                    }
+                    else if (order.Status == OrderStatus.PickedUp || order.Status == OrderStatus.InLaundry)
+                    {
+                        <p class="text-sm text-gray-500">
+                            Transport do pralni
+                            <br />
+                            Odbiór: @order.PickupAddress.Street @order.PickupAddress.BuildingNumber, @order.PickupAddress.City
+                        </p>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="deliverToLaundry('@order.Id')"
+                                class="flex-1 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
+                                Dostarczone do pralni
+                            </button>
+                        </div>
+                    }
+                    else if (order.Status == OrderStatus.OutForDelivery)
+                    {
+                        <p class="text-sm text-gray-500">
+                            Dostawa do klienta
+                            <br />
+                            Dostawa: @order.DeliveryAddress.Street @order.DeliveryAddress.BuildingNumber, @order.DeliveryAddress.City
+                        </p>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="completeDelivery('@order.Id')"
+                                class="flex-1 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
+                                Dostarczone
+                            </button>
+                        </div>
+                    }
+                    <p class="text-sm text-gray-500">
+                        Czas: @order.PickupTime.ToString("dd.MM.yyyy HH:mm")
+                    </p>
+                    @if (!string.IsNullOrEmpty(order.CourierInstructions))
+                    {
+                        <p class="text-sm text-gray-500">
+                            Instrukcje: @order.CourierInstructions
+                        </p>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p class="text-sm text-gray-500">Brak aktywnych zleceń.</p>
+} 

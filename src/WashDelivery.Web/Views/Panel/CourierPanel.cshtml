@@ -1,0 +1,154 @@
+@using WashDelivery.Application.DTOs.Orders
+@using WashDelivery.Domain.Enums
+@using WashDelivery.Domain.Entities
+@using WashDelivery.Domain.Constants
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@{
+    Layout = "_CourierLayout";
+    ViewData["Title"] = "Panel kuriera";
+    var token = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+    var isAvailable = ViewBag.IsAvailable as bool? ?? false;
+    var statusClass = isAvailable ? "text-green-600" : "text-red-600";
+    var statusText = isAvailable ? "dostępny" : "niedostępny";
+    var buttonClass = isAvailable ? "bg-indigo-600 hover:bg-indigo-500" : "bg-green-600 hover:bg-green-500";
+
+    string GetStatusDisplay(OrderStatus status)
+    {
+        return OrderStatusDisplayNames.GetDisplayName(status);
+    }
+}
+
+@Html.AntiForgeryToken()
+
+<div class="min-h-full">
+    <div class="py-10">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            @if (TempData["Error"] != null)
+            {
+                <div class="mb-4 rounded-md bg-red-50 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-red-800">@TempData["Error"]</p>
+                        </div>
+                    </div>
+                </div>
+            }
+            @if (TempData["Success"] != null)
+            {
+                <div class="mb-4 rounded-md bg-green-50 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-green-800">@TempData["Success"]</p>
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="space-y-10">
+                <!-- Status section -->
+                <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-base font-semibold leading-7 text-gray-900">Panel kuriera</h2>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Zarządzaj swoją dostępnością i śledź dostawy.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="mt-6 border-t border-gray-100 pt-6">
+                        <h3 class="text-base font-semibold leading-7 text-gray-900">Status dostępności</h3>
+                        <div class="mt-4">
+                            <div class="rounded-lg bg-white shadow ring-1 ring-gray-900/5">
+                                <div class="px-4 py-5 sm:p-6">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm text-gray-500" id="availabilityStatus">
+                                                Aktualnie jesteś <span class="font-semibold @statusClass">@statusText</span> do przyjmowania zleceń
+                                            </p>
+                                        </div>
+                                        <form asp-action="ToggleAvailability" asp-controller="Panel" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit"
+                                                class="rounded-md @buttonClass px-4 py-2 text-sm font-semibold text-white shadow-sm">
+                                                Zmień status
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Statistics -->
+                    <div class="mt-6 border-t border-gray-100 pt-6">
+                        <h3 class="text-base font-semibold leading-7 text-gray-900">Statystyki</h3>
+                        <dl class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                            <div class="relative overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6 ring-1 ring-gray-900/5">
+                                <dt class="truncate text-sm font-medium text-gray-500">Dzisiejsze dostawy</dt>
+                                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">@ViewBag.TodayDeliveries</dd>
+                            </div>
+                            <div class="relative overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6 ring-1 ring-gray-900/5">
+                                <dt class="truncate text-sm font-medium text-gray-500">Średni czas dostawy</dt>
+                                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">@ViewBag.AverageDeliveryTime min</dd>
+                            </div>
+                            <div class="relative overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6 ring-1 ring-gray-900/5">
+                                <dt class="truncate text-sm font-medium text-gray-500">Ukończone dostawy</dt>
+                                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">@ViewBag.CompletedDeliveries</dd>
+                            </div>
+                            <div class="relative overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6 ring-1 ring-gray-900/5">
+                                <dt class="truncate text-sm font-medium text-gray-500">Zarobki dzisiaj</dt>
+                                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">@ViewBag.TodayEarnings zł</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+
+                <!-- Assigned Orders -->
+                <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-base font-semibold leading-7 text-gray-900">Moje zamówienia</h2>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Zamówienia przypisane do Ciebie.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <partial name="_AssignedOrders" model="@ViewBag.AssignedOrders" />
+                    </div>
+                </div>
+
+                <!-- Available Orders -->
+                <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-base font-semibold leading-7 text-gray-900">Dostępne zamówienia</h2>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Zamówienia oczekujące na kuriera.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <partial name="_AvailableOrders" model="@ViewBag.AvailableOrders" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <partial name="_CourierNotifications" />
+} 

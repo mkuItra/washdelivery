@@ -1,0 +1,105 @@
+﻿@using WashDelivery.Domain.Constants
+
+<!DOCTYPE html>
+<html class="h-full bg-gray-100">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>@ViewData["Title"] - WashDelivery</title>
+
+  <!-- <link href="~/favicon.ico" rel="icon"> -->
+
+  <environment include="Development">
+    <link rel="stylesheet" href="~/dist/app.css">
+  </environment>
+  <environment exlude="Development">
+    <link rel="stylesheet" href="~/dist/app.min.css" asp-append-version="true" />
+  </environment>
+</head>
+
+<body class="h-full">
+  <div class="min-h-full">
+    <nav class="bg-white shadow-sm">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 items-center justify-between">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <a asp-controller="Home" asp-action="Index" class="text-xl font-bold text-indigo-600">WashDelivery</a>
+            </div>
+            <div class="sm:ml-6 sm:flex sm:space-x-8">
+              @if (!User.Identity?.IsAuthenticated ?? false)
+              {
+                  <a asp-controller="Home" asp-action="Index" 
+                     class="inline-flex items-center border-b-2 border-indigo-500 px-1 pt-1 text-sm font-medium text-gray-900">
+                      Home
+                  </a>
+              }
+              @if (User.IsInRole(Roles.Admin))
+              {
+                  <a asp-controller="Admin" asp-action="Users" 
+                     class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                      Użytkownicy
+                  </a>
+                  <a asp-controller="Laundry" asp-action="Index" 
+                     class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                      Pralnie
+                  </a>
+              }
+              @if (User.IsInRole(Roles.Courier))
+              {
+                  <a asp-controller="Panel" asp-action="CourierPanel" 
+                     class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                      Panel
+                  </a>
+                  <a asp-controller="Panel" asp-action="CompletedOrders" 
+                     class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                      Historia zamówień
+                  </a>
+              }
+            </div>
+          </div>
+          <div class="flex items-center">
+            <partial name="_LoginPartial" />
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+      @RenderBody()
+    </main>
+    
+    @if (User.IsInRole("LaundryManager"))
+    {
+        <partial name="_LaundryNotifications" />
+    }
+
+    <!-- Core Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/profile-dropdown.js"></script>
+
+    <!-- Development Scripts -->
+    <environment include="Development">
+      <script src="~/dist/app.js"></script>
+    </environment>
+    <environment exclude="Development">
+      <script src="~/dist/app.min.js" asp-append-version="true"></script>
+    </environment>
+
+    <!-- SignalR Scripts -->
+    @if (User.IsInRole("LaundryManager"))
+    {
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.js"></script>
+        <script src="~/js/signalr-init.js" asp-append-version="true"></script>
+        <script src="~/js/laundry-notifications.js" asp-append-version="true"></script>
+    }
+
+    @await RenderSectionAsync("Scripts", required: false)
+  </div>
+</body>
+
+</html>

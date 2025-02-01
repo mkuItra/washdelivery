@@ -1,0 +1,170 @@
+@model WashDelivery.Web.ViewModels.Orders.OrderSummaryViewModel
+
+@{
+    ViewData["Title"] = "Podsumowanie zamówienia";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-3xl mx-auto">
+        <nav class="flex items-center justify-center" aria-label="Progress">
+            <ol role="list" class="flex items-center">
+                <li class="relative">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div class="h-0.5 w-full bg-green-600"></div>
+                    </div>
+                    <a href="@Url.Action("Create")" class="relative w-8 h-8 flex items-center justify-center bg-green-600 rounded-full hover:bg-green-900">
+                        <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="sr-only">Krok 1</span>
+                    </a>
+                </li>
+                <li class="relative">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div class="h-0.5 w-full bg-green-600"></div>
+                    </div>
+                    <a href="@Url.Action("LaundryDetails")" class="relative w-8 h-8 flex items-center justify-center bg-green-600 rounded-full hover:bg-green-900">
+                        <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="sr-only">Krok 2</span>
+                    </a>
+                </li>
+                <li class="relative">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div class="h-0.5 w-full bg-gray-200"></div>
+                    </div>
+                    <a href="#" class="group relative w-8 h-8 flex items-center justify-center bg-white border-2 border-green-600 rounded-full" aria-current="step">
+                        <span class="h-2.5 w-2.5 bg-green-600 rounded-full" aria-hidden="true"></span>
+                        <span class="sr-only">Krok 3</span>
+                    </a>
+                </li>
+            </ol>
+        </nav>
+
+        <div class="mt-8">
+            <h2 class="text-lg font-medium text-gray-900">Podsumowanie zamówienia</h2>
+            <p class="mt-1 text-sm text-gray-500">
+                Sprawdź szczegóły zamówienia przed potwierdzeniem.
+            </p>
+
+            <div class="mt-6">
+                <div class="flow-root">
+                    <div id="order-summary">
+                        <!-- Pickup and delivery details -->
+                        <div class="mb-6">
+                            <h3 class="text-sm font-medium text-gray-900">Szczegóły odbioru i dostawy</h3>
+                            <div class="mt-2 space-y-4">
+                                <!-- Pickup details -->
+                                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h4 class="text-sm font-medium text-gray-900">Odbiór</h4>
+                                            <p class="text-sm text-gray-900">@Model.PickupAddress.Street @Model.PickupAddress.BuildingNumber</p>
+                                            <p class="text-sm text-gray-500">@Model.PickupAddress.PostalCode @Model.PickupAddress.City</p>
+                                            <p class="text-sm text-gray-500">@Model.PickupTime.ToString("dd.MM.yyyy HH:mm")</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Delivery details -->
+                                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h4 class="text-sm font-medium text-gray-900">Dostawa</h4>
+                                            <p class="text-sm text-gray-900">@Model.DeliveryAddress.Street @Model.DeliveryAddress.BuildingNumber</p>
+                                            <p class="text-sm text-gray-500">@Model.DeliveryAddress.PostalCode @Model.DeliveryAddress.City</p>
+                                            @if (Model.LeaveAtDoor)
+                                            {
+                                                <p class="text-sm text-indigo-600">Zostaw pod drzwiami</p>
+                                            }
+                                            @if (!string.IsNullOrEmpty(Model.CourierInstructions))
+                                            {
+                                                <p class="text-sm text-gray-500">Instrukcje: @Model.CourierInstructions</p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Selected services -->
+                        @if (Model.Services != null && Model.Services.Any())
+                        {
+                            <div class="mb-6">
+                                <h3 class="text-sm font-medium text-gray-900">Wybrane usługi</h3>
+                                <div class="mt-2 space-y-2">
+                                    @foreach (var service in Model.Services)
+                                    {
+                                        <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                            <div class="flex justify-between">
+                                                <div>
+                                                    <h4 class="text-base font-medium text-gray-900">@service.Name</h4>
+                                                    @if (service.IsExtra)
+                                                    {
+                                                        <p class="text-sm text-indigo-600">Usługa dodatkowa</p>
+                                                    }
+                                                </div>
+                                                <div class="text-right">
+                                                    <p class="text-sm text-gray-900">@service.Price zł/szt</p>
+                                                    @if (service.Quantity > 1)
+                                                    {
+                                                        <p class="text-sm text-gray-500">Ilość: @service.Quantity</p>
+                                                        <p class="text-sm font-medium text-gray-900">Razem: @(service.Price * service.Quantity) zł</p>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="mt-8 flex justify-end space-x-4">
+                        <a href="@Url.Action("LaundryDetails")" class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Wstecz</a>
+                        <button type="button" onclick="submitOrder()" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Złóż zamówienie</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function submitOrder() {
+            try {
+                const response = await fetch('@Url.Action("Submit", "Order")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-XSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                });
+
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error(result.message || 'Failed to create order');
+                }
+
+                window.location.href = '@Url.Action("Details", "Order")/' + result.orderId;
+            } catch (error) {
+                console.error('Error submitting order:', error);
+                alert('Wystąpił błąd podczas składania zamówienia: ' + error.message);
+            }
+        }
+    </script>
+} 

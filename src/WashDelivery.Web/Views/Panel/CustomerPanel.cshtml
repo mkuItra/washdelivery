@@ -1,0 +1,37 @@
+@{
+    ViewData["Title"] = "Panel klienta";
+}
+
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="sm:flex sm:items-center">
+        <div class="sm:flex-auto">
+            <h1 class="text-base font-semibold leading-6 text-gray-900">Panel klienta</h1>
+        </div>
+        <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+            <a asp-controller="Order" asp-action="Create"
+               class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
+                Nowe zamówienie
+            </a>
+        </div>
+    </div>
+
+    <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <a asp-controller="Order" asp-action="List" class="block">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Zamówienia</h3>
+                    <p class="mt-2 text-sm text-gray-500">Przeglądaj i zarządzaj swoimi zamówieniami</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <a asp-controller="Panel" asp-action="Settings" class="block">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Ustawienia</h3>
+                    <p class="mt-2 text-sm text-gray-500">Zarządzaj swoim kontem i adresami</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</div> 

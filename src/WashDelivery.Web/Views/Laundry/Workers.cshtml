@@ -1,0 +1,406 @@
+@using WashDelivery.Web.ViewModels.Laundry
+@using WashDelivery.Domain.Constants
+@model LaundryWorkersViewModel
+@{
+    ViewData["Title"] = $"Pracownicy - {Model.LaundryName}";
+}
+
+<div class="px-4 sm:px-6 lg:px-8">
+    <div class="sm:flex sm:items-center">
+        <div class="sm:flex-auto">
+            <h1 class="text-2xl font-semibold leading-6 text-gray-900">Pracownicy pralni @Model.LaundryName</h1>
+            <p class="mt-2 text-sm text-gray-700">Lista wszystkich pracowników przypisanych do tej pralni.</p>
+        </div>
+        <div class="mt-4 sm:mt-0 sm:ml-16 space-x-3 flex">
+            <button type="button" onclick="openAddWorkersModal()"
+                    class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
+                Dodaj pracowników
+            </button>
+            <button type="button" id="removeSelectedBtn"
+                    class="hidden block rounded-md bg-red-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-red-500">
+                Usuń zaznaczonych
+            </button>
+        </div>
+    </div>
+
+    <form id="workersForm" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="laundryId" value="@Model.LaundryId" />
+        <div class="mt-8 flow-root">
+            <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                <div class="inline-block min-w-full py-2 align-middle">
+                    <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+                        <table class="min-w-full divide-y divide-gray-300">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="relative px-7 sm:w-12 sm:px-6">
+                                        <input type="checkbox" class="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300"
+                                               id="selectAll">
+                                    </th>
+                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
+                                        Pracownik
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                        Email
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                        Telefon
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                        Rola
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                                @if (!Model.Workers.Any())
+                                {
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                                            <div class="flex flex-col items-center justify-center py-8">
+                                                <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                </svg>
+                                                <h3 class="mt-2 text-sm font-medium text-gray-900">Brak przypisanych pracowników</h3>
+                                                <p class="mt-1 text-sm text-gray-500">
+                                                    Kliknij "Dodaj pracowników" aby przypisać pracowników do tej pralni.
+                                                </p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                                @foreach (var worker in Model.Workers)
+                                {
+                                    <tr>
+                                        <td class="relative px-7 sm:w-12 sm:px-6">
+                                            <input type="checkbox" name="selectedWorkers" value="@worker.Id"
+                                                   class="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 worker-checkbox">
+                                        </td>
+                                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm">
+                                            <div class="font-medium text-gray-900">@worker.FirstName @worker.LastName</div>
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">@worker.Email</td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">@worker.PhoneNumber</td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                            <partial name="_RoleBadgePartial" model="@worker.Role" />
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Modal do dodawania pracowników -->
+<div id="addWorkersModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 overflow-y-auto">
+    <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        <div class="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-base font-semibold text-gray-900">Dodaj pracowników</h3>
+                <button type="button" onclick="closeAddWorkersModal()" 
+                        class="text-gray-400 hover:text-gray-500">
+                    <span class="sr-only">Zamknij</span>
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div>
+                <div class="mt-2">
+                    <div class="mt-4">
+                        <label for="searchUsers" class="block text-sm font-medium text-gray-700 text-left mb-1">
+                            Wyszukaj po imieniu, nazwisku lub emailu
+                        </label>
+                        <div class="relative">
+                            <input type="text" id="searchUsers" placeholder="Wpisz minimum 2 znaki..."
+                                   class="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 max-h-60 overflow-y-auto" id="searchResults">
+                        <!-- Tutaj będą wyniki wyszukiwania -->
+                    </div>
+                </div>
+            </div>
+            <div class="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+                <button type="button" onclick="addSelectedWorkers()"
+                        class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed sm:col-start-2">
+                    Dodaj zaznaczonych
+                </button>
+                <button type="button" onclick="closeAddWorkersModal()"
+                        class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0">
+                    Anuluj
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function getDisplayName(role) {
+            const displayNames = {
+                '@Html.Raw(Json.Serialize(Roles.Admin))': '@RoleDisplayNames.GetDisplayName(Roles.Admin)',
+                '@Html.Raw(Json.Serialize(Roles.Customer))': '@RoleDisplayNames.GetDisplayName(Roles.Customer)',
+                '@Html.Raw(Json.Serialize(Roles.Courier))': '@RoleDisplayNames.GetDisplayName(Roles.Courier)',
+                '@Html.Raw(Json.Serialize(Roles.LaundryWorker))': '@RoleDisplayNames.GetDisplayName(Roles.LaundryWorker)',
+                '@Html.Raw(Json.Serialize(Roles.LaundryManager))': '@RoleDisplayNames.GetDisplayName(Roles.LaundryManager)'
+            };
+            return displayNames[role] || role;
+        }
+
+        // Obsługa checkboxów
+        document.getElementById('selectAll').addEventListener('change', function(e) {
+            document.querySelectorAll('.worker-checkbox').forEach(checkbox => {
+                checkbox.checked = e.target.checked;
+            });
+            updateRemoveButton();
+        });
+
+        document.querySelectorAll('.worker-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', updateRemoveButton);
+        });
+
+        function updateRemoveButton() {
+            const checkedBoxes = document.querySelectorAll('.worker-checkbox:checked');
+            const removeButton = document.getElementById('removeSelectedBtn');
+            if (checkedBoxes.length > 0) {
+                removeButton.classList.remove('hidden');
+            } else {
+                removeButton.classList.add('hidden');
+            }
+        }
+
+        // Obsługa modalu
+        let searchTimeout;
+        const searchInput = document.getElementById('searchUsers');
+        const searchResults = document.getElementById('searchResults');
+
+        function openAddWorkersModal() {
+            document.getElementById('addWorkersModal').classList.remove('hidden');
+            searchInput.value = '';
+            searchInput.focus();
+            searchUsers('');
+        }
+
+        function closeAddWorkersModal() {
+            document.getElementById('addWorkersModal').classList.add('hidden');
+            searchInput.value = '';
+            searchResults.innerHTML = '';
+        }
+
+        searchInput.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            const searchTerm = e.target.value.trim();
+            searchTimeout = setTimeout(() => {
+                searchUsers(searchTerm);
+            }, 300);
+        });
+
+        async function searchUsers(term) {
+            try {
+                const response = await fetch(
+                    `/Admin/SearchUsers?term=${encodeURIComponent(term)}&roles=LaundryWorker,LaundryManager`, 
+                    {
+                        headers: {
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        }
+                    }
+                );
+                
+                if (!response.ok) {
+                    throw new Error('Search request failed');
+                }
+                
+                const users = await response.json();
+                displaySearchResults(users);
+            } catch (error) {
+                console.error('Error searching users:', error);
+                searchResults.innerHTML = `
+                    <div class="px-4 py-2 text-sm text-red-500">
+                        Wystąpił błąd podczas wyszukiwania pracowników
+                    </div>
+                `;
+            }
+        }
+
+        function displaySearchResults(users) {
+            if (users.length === 0) {
+                searchResults.innerHTML = `
+                    <div class="px-4 py-2 text-sm text-gray-500">
+                        Brak dostępnych pracowników lub kierowników do przypisania
+                    </div>
+                `;
+                return;
+            }
+
+            searchResults.innerHTML = `
+                <div class="divide-y divide-gray-200">
+                    ${users.map(user => `
+                        <div class="flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer" onclick="toggleSearchCheckbox(event, '${user.id}')">
+                            <input type="checkbox" value="${user.id}" 
+                                   class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 search-result-checkbox"
+                                   onclick="event.stopPropagation()">
+                            <div class="ml-3 min-w-0 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <p class="text-sm font-medium text-gray-900 truncate">
+                                        ${user.firstName} ${user.lastName}
+                                    </p>
+                                    <p class="ml-2 text-xs">
+                                        <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${getRoleClass(user.role)}">
+                                            ${user.roleDisplay}
+                                        </span>
+                                    </p>
+                                </div>
+                                <p class="text-sm text-gray-500 truncate">${user.email}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // Dodaj nasłuchiwanie na checkboxy
+            document.querySelectorAll('.search-result-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', updateAddButton);
+            });
+            
+            // Zaktualizuj stan przycisku
+            updateAddButton();
+        }
+
+        // Dodaj nową funkcję do przełączania checkboxa
+        function toggleSearchCheckbox(event, userId) {
+            const checkbox = event.currentTarget.querySelector(`input[value="${userId}"]`);
+            checkbox.checked = !checkbox.checked;
+            updateAddButton();
+        }
+
+        async function addSelectedWorkers() {
+            const selectedUsers = Array.from(document.querySelectorAll('.search-result-checkbox:checked'))
+                .map(checkbox => checkbox.value);
+
+            if (selectedUsers.length === 0) {
+                // Dodaj komunikat o błędzie
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'mt-2 rounded-md bg-red-50 p-4';
+                errorDiv.innerHTML = `
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">Wybierz przynajmniej jednego pracownika</h3>
+                        </div>
+                    </div>
+                `;
+
+                // Znajdź miejsce do wstawienia komunikatu (nad przyciskami)
+                const buttonsContainer = document.querySelector('.mt-5.sm\\:mt-6');
+                buttonsContainer.parentNode.insertBefore(errorDiv, buttonsContainer);
+
+                // Usuń komunikat po 3 sekundach
+                setTimeout(() => {
+                    errorDiv.remove();
+                }, 3000);
+
+                return;
+            }
+
+            try {
+                const response = await fetch('/Laundry/AddWorkers', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({
+                        laundryId: '@Model.LaundryId',
+                        userIds: selectedUsers
+                    })
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    console.error('Error adding workers');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Dodaj obsługę przycisku usuwania zaznaczonych
+        document.getElementById('removeSelectedBtn').addEventListener('click', async function() {
+            const selectedWorkers = Array.from(document.querySelectorAll('.worker-checkbox:checked'))
+                .map(checkbox => checkbox.value);
+
+            if (selectedWorkers.length === 0) return;
+
+            if (!confirm('Czy na pewno chcesz usunąć zaznaczonych pracowników?')) return;
+
+            try {
+                const response = await fetch('/Laundry/RemoveWorkers', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({
+                        laundryId: '@Model.LaundryId',
+                        userIds: selectedWorkers
+                    })
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    console.error('Error removing workers');
+                    alert('Wystąpił błąd podczas usuwania pracowników');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Wystąpił błąd podczas usuwania pracowników');
+            }
+        });
+
+        // Dodaj funkcję do aktualizacji stanu przycisku w modalu
+        function updateAddButton() {
+            const checkedBoxes = document.querySelectorAll('.search-result-checkbox:checked');
+            const addButton = document.querySelector('[onclick="addSelectedWorkers()"]');
+            addButton.disabled = checkedBoxes.length === 0;
+            addButton.classList.toggle('opacity-50', checkedBoxes.length === 0);
+            addButton.classList.toggle('cursor-not-allowed', checkedBoxes.length === 0);
+        }
+
+        function getRoleClass(role) {
+            console.log('Role received:', role);
+
+            switch (role) {
+                case 'Admin':
+                    return 'bg-red-100 text-red-700 ring-red-600/20';
+                case 'LaundryManager':
+                    return 'bg-emerald-100 text-emerald-700 ring-emerald-600/20';
+                case 'LaundryWorker':
+                    return 'bg-green-100 text-green-700 ring-green-600/20';
+                case 'Courier':
+                    return 'bg-orange-100 text-orange-700 ring-orange-600/20';
+                case 'Customer':
+                    return 'bg-blue-100 text-blue-700 ring-blue-600/20';
+                default:
+                    console.log('Falling back to default for role:', role);
+                    return 'bg-gray-100 text-gray-700 ring-gray-600/20';
+            }
+        }
+    </script>
+} 

@@ -1,0 +1,198 @@
+@model WashDelivery.Web.ViewModels.Admin.UsersViewModel
+@using WashDelivery.Domain.Constants
+@{
+    ViewData["Title"] = "Zarządzanie użytkownikami";
+}
+
+<div class="px-4 sm:px-6 lg:px-8">
+    <div class="sm:flex sm:items-center">
+        <div class="sm:flex-auto">
+            <h1 class="text-2xl font-semibold leading-6 text-gray-900">Użytkownicy</h1>
+            <p class="mt-2 text-sm text-gray-700">Lista wszystkich użytkowników w systemie.</p>
+        </div>
+        <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+            <a asp-action="CreateUser"
+               class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                Dodaj użytkownika
+            </a>
+        </div>
+    </div>
+
+    <div class="mt-4 sm:flex sm:items-center">
+        <div class="w-full sm:max-w-xs">
+            <form method="get" class="flex items-center gap-x-2">
+                <label for="role" class="block text-sm font-medium text-gray-700">Filtruj po roli</label>
+                <select id="role" name="role" 
+                        class="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                        onchange="this.form.submit()">
+                    @foreach (var role in Model.AvailableRoles)
+                    {
+                        <option value="@role.Key" selected="@(role.Key == Model.SelectedRole)">
+                            @role.Value
+                        </option>
+                    }
+                </select>
+            </form>
+        </div>
+    </div>
+
+    <div class="mt-8">
+        <!-- Mobile view -->
+        <div class="grid grid-cols-1 gap-4 sm:hidden">
+            @foreach (var user in Model.Users)
+            {
+                <div class="bg-white shadow rounded-lg overflow-hidden">
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900">@user.FirstName @user.LastName</h3>
+                                <p class="text-sm text-gray-500">@user.Email</p>
+                                <p class="text-sm text-gray-500">@user.PhoneNumber</p>
+                                <div class="mt-2 space-x-1">
+                                    @foreach (var role in user.Roles)
+                                    {
+                                        <partial name="_RoleBadgePartial" model="@role" />
+                                    }
+                                </div>
+                                <div class="mt-2">
+                                    @if (user.IsActive)
+                                    {
+                                        <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                            Aktywny
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
+                                            Nieaktywny
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="flex flex-col space-y-2">
+                                <a asp-action="EditUser" asp-route-id="@user.Id" 
+                                   class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200">
+                                    Edytuj
+                                </a>
+                                @if (user.IsActive)
+                                {
+                                    @if (user.Email != User.Identity?.Name)
+                                    {
+                                        <form asp-action="DeactivateUser" asp-route-id="@user.Id" method="post">
+                                            <button type="submit" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200">
+                                                Dezaktywuj
+                                            </button>
+                                        </form>
+                                    }
+                                }
+                                else
+                                {
+                                    <form asp-action="ActivateUser" asp-route-id="@user.Id" method="post">
+                                        <button type="submit" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200">
+                                            Aktywuj
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Desktop view -->
+        <div class="hidden sm:block">
+            <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                <div class="inline-block min-w-full py-2 align-middle">
+                    <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+                        <table class="min-w-full divide-y divide-gray-300">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
+                                        Użytkownik
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                        Email
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                        Telefon
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                        Role
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                        Status
+                                    </th>
+                                    <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                                        <span class="sr-only">Akcje</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                                @foreach (var user in Model.Users)
+                                {
+                                    <tr>
+                                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm">
+                                            <div class="font-medium text-gray-900">@user.FirstName @user.LastName</div>
+                                            <div class="text-gray-500">Dołączył: @user.CreatedAt.ToString("dd.MM.yyyy")</div>
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                            @user.Email
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                            @user.PhoneNumber
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 space-x-1">
+                                            @foreach (var role in user.Roles)
+                                            {
+                                                <partial name="_RoleBadgePartial" model="@role" />
+                                            }
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                            @if (user.IsActive)
+                                            {
+                                                <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                                    Aktywny
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
+                                                    Nieaktywny
+                                                </span>
+                                            }
+                                        </td>
+                                        <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium">
+                                            <a asp-action="EditUser" asp-route-id="@user.Id" class="text-indigo-600 hover:text-indigo-900 mr-4">
+                                                Edytuj
+                                            </a>
+                                            @if (user.IsActive)
+                                            {
+                                                @if (user.Email != User.Identity?.Name)
+                                                {
+                                                    <form asp-action="DeactivateUser" asp-route-id="@user.Id" method="post" class="inline">
+                                                        <button type="submit" class="text-red-600 hover:text-red-900">
+                                                            Dezaktywuj
+                                                        </button>
+                                                    </form>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <form asp-action="ActivateUser" asp-route-id="@user.Id" method="post" class="inline">
+                                                    <button type="submit" class="text-green-600 hover:text-green-900">
+                                                        Aktywuj
+                                                    </button>
+                                                </form>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

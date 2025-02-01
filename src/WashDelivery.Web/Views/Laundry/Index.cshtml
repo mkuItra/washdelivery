@@ -1,0 +1,170 @@
+@using WashDelivery.Application.DTOs.Laundries
+@model IEnumerable<LaundryDto>
+
+@{
+    ViewData["Title"] = "Lista pralni";
+}
+
+<div class="px-4 sm:px-6 lg:px-8">
+    <div class="sm:flex sm:items-center">
+        <div class="sm:flex-auto">
+            <h1 class="text-2xl font-semibold leading-6 text-gray-900">Pralnie</h1>
+            <p class="mt-2 text-sm text-gray-700">Lista wszystkich pralni w systemie.</p>
+        </div>
+        <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+            <a asp-action="Create"
+               class="block rounded-md bg-indigo-600 px-3.5 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                Dodaj pralnię
+            </a>
+        </div>
+    </div>
+
+    <!-- Mobile view -->
+    <div class="mt-8 grid gap-4 sm:hidden">
+        @foreach (var laundry in Model)
+        {
+            <div class="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200">
+                <div class="px-4 py-5 sm:px-6">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-medium text-gray-900">@laundry.Name</h3>
+                        @if (laundry.IsActive)
+                        {
+                            <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                Aktywna
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
+                                Nieaktywna
+                            </span>
+                        }
+                    </div>
+                    <div class="mt-4 space-y-4">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Adres</dt>
+                            <dd class="mt-1 text-sm text-gray-900">@laundry.Address</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Kontakt</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <div>@laundry.ContactEmail</div>
+                                <div>@laundry.ContactPhone</div>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Ocena</dt>
+                            <dd class="mt-1 text-sm text-gray-900 flex items-center">
+                                <svg class="text-yellow-400 h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+                                </svg>
+                                <span class="ml-1">@laundry.Rating.ToString("0.0")</span>
+                            </dd>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-4 py-4 sm:px-6">
+                    <div class="flex justify-end space-x-4">
+                        <a asp-action="Edit" asp-route-id="@laundry.Id" class="text-indigo-600 hover:text-indigo-900">Edytuj</a>
+                        <a asp-action="Workers" asp-route-id="@laundry.Id" class="text-indigo-600 hover:text-indigo-900 mr-4">
+                            Pracownicy
+                        </a>
+                        @if (laundry.IsActive)
+                        {
+                            <form asp-action="Deactivate" asp-route-id="@laundry.Id" method="post" class="inline">
+                                <button type="submit" class="text-red-600 hover:text-red-900">Dezaktywuj</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-action="Activate" asp-route-id="@laundry.Id" method="post" class="inline">
+                                <button type="submit" class="text-green-600 hover:text-green-900">Aktywuj</button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Desktop view -->
+    <div class="hidden sm:block">
+        <div class="mt-8 flow-root">
+            <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                    <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+                        <table class="min-w-full divide-y divide-gray-300">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Nazwa</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Adres</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Kontakt</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Ocena</th>
+                                    <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                                        <span class="sr-only">Akcje</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                                @foreach (var laundry in Model)
+                                {
+                                    <tr>
+                                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                                            @laundry.Name
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">@laundry.Address</td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                            <div>@laundry.ContactEmail</div>
+                                            <div>@laundry.ContactPhone</div>
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                            @if (laundry.IsActive)
+                                            {
+                                                <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                                    Aktywna
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
+                                                    Nieaktywna
+                                                </span>
+                                            }
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                            <div class="flex items-center">
+                                                <svg class="text-yellow-400 h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+                                                </svg>
+                                                <span class="ml-1">@laundry.Rating.ToString("0.0")</span>
+                                            </div>
+                                        </td>
+                                        <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                                            <a asp-action="Edit" asp-route-id="@laundry.Id" class="text-indigo-600 hover:text-indigo-900 mr-4">Edytuj</a>
+                                            <a asp-action="Workers" asp-route-id="@laundry.Id" class="text-indigo-600 hover:text-indigo-900 mr-4">
+                                                Pracownicy
+                                            </a>
+                                            @if (laundry.IsActive)
+                                            {
+                                                <form asp-action="Deactivate" asp-route-id="@laundry.Id" method="post" class="inline">
+                                                    <button type="submit" class="text-red-600 hover:text-red-900">Dezaktywuj</button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <form asp-action="Activate" asp-route-id="@laundry.Id" method="post" class="inline">
+                                                    <button type="submit" class="text-green-600 hover:text-green-900">Aktywuj</button>
+                                                </form>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
