@@ -33,7 +33,7 @@
 
 ## Instrukcja pierwszego uruchomienia:
 
-Baza danych jest już w repozytorium, wystarczy uruchomić serwer poleceniem:
+Baza danych jest już w repozytorium, wystarczy uruchomić serwer z katalogu src/Washdelivery.Web poleceniem:
 
 ```bash
 dotnet watch
