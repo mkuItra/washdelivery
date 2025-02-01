@@ -15,31 +15,22 @@ using AutoMapper;
 using WashDelivery.Application.Mapping;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Kestrel
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    var urls = builder.Configuration.GetValue<string>("ASPNETCORE_URLS")?.Split(';') 
-        ?? new[] { "http://localhost:5000", "https://localhost:5001" };
-
-    foreach (var url in urls)
+    serverOptions.Listen(IPAddress.Parse("127.0.0.1"), 5000);
+    serverOptions.Listen(IPAddress.Parse("127.0.0.1"), 5001, listenOptions =>
     {
-        var uri = new Uri(url);
-        if (uri.Scheme == "https")
-        {
-            serverOptions.Listen(IPAddress.Parse("127.0.0.1"), uri.Port, listenOptions =>
-            {
-                listenOptions.UseHttps();
-            });
-        }
-        else
-        {
-            serverOptions.Listen(IPAddress.Parse("127.0.0.1"), uri.Port);
-        }
-    }
+        listenOptions.UseHttps();
+    });
 });
+
+// Disable IPv6
+builder.WebHost.UseUrls("http://127.0.0.1:5000", "https://127.0.0.1:5001");
 
 // Configure timezone
 builder.Services.Configure<RequestLocalizationOptions>(options =>
@@ -55,7 +46,12 @@ builder.Services.AddHttpsRedirection(options =>
 {
     options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
     options.HttpsPort = 5001;
-    options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
+});
+
+// Add custom middleware to handle HTTP to HTTPS redirection for all ports
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedProto;
 });
 
 // Configure HSTS
@@ -193,7 +189,26 @@ if (!app.Environment.IsDevelopment())
 }
 
 // Order is important here
+app.UseForwardedHeaders();
 app.UseHsts();
+
+// Custom middleware to ensure all HTTP traffic is redirected to HTTPS
+app.Use(async (context, next) =>
+{
+    if (!context.Request.IsHttps)
+    {
+        var host = context.Request.Host.Host;
+        if (host.Contains("localhost") || host.Contains("::1"))
+        {
+            host = "127.0.0.1";
+        }
+        var httpsUrl = $"https://{host}:5001{context.Request.Path}{context.Request.QueryString}";
+        context.Response.Redirect(httpsUrl, true);
+        return;
+    }
+    await next();
+});
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
