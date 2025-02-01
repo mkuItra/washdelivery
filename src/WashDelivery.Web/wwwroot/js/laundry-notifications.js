@@ -10,6 +10,32 @@ let closeButton;
 let notificationsEnabled = false;
 let activeNotifications = new Set(); // Track active notifications by orderId
 
+// Helper function to format dates in GMT+1
+function formatDateGMT1(date) {
+    return new Date(date).toLocaleString('pl-PL', {
+        timeZone: 'Europe/Warsaw',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// Helper function to format time in GMT+1
+function formatTimeGMT1(date) {
+    return new Date(date).toLocaleString('pl-PL', {
+        timeZone: 'Europe/Warsaw',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// Helper function to get date in GMT+1
+function getDateGMT1(date) {
+    return new Date(new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Warsaw' }));
+}
+
 async function requestNotificationPermission() {
     debugLog("Requesting notification permission...");
     try {
@@ -40,10 +66,14 @@ function showDesktopNotification(order) {
             return;
         }
 
-        // Add creation time to the notification
-        const createdAt = new Date(order.createdAt);
-        const now = new Date();
+        // Add creation time to the notification using GMT+1
+        const createdAt = getDateGMT1(order.createdAt);
+        const now = getDateGMT1(new Date());
         const minutesOld = Math.floor((now - createdAt) / 1000 / 60);
+
+        debugLog("Order created at (GMT+1):", createdAt);
+        debugLog("Current time (GMT+1):", now);
+        debugLog("Minutes old:", minutesOld);
 
         // Don't show notifications for orders older than 3 minutes
         if (minutesOld >= 3) {
@@ -52,7 +82,7 @@ function showDesktopNotification(order) {
         }
 
         const notification = new Notification("Nowe zamówienie!", {
-            body: `Nowe zamówienie do pralni\nAdres odbioru: ${order.pickupAddress.street}, ${order.pickupAddress.city}\nCzas odbioru: ${new Date(order.pickupTime).toLocaleTimeString()}`,
+            body: `Nowe zamówienie do pralni\nAdres odbioru: ${order.pickupAddress.street}, ${order.pickupAddress.city}\nCzas odbioru: ${formatTimeGMT1(order.pickupTime)}`,
             icon: "/img/logo.png",
             requireInteraction: true,
             tag: `order-${order.id}` // Use tag to prevent duplicate notifications
@@ -115,15 +145,37 @@ function initializeUI() {
         // Add click handlers for notification buttons
         acceptButton.addEventListener('click', async () => {
             debugLog("Accept button clicked");
-            if (!currentOrderId || !window.hubConnection) {
-                debugLog("Cannot accept order: no current order ID or connection");
+            if (!currentOrderId) {
+                debugLog("Cannot accept order: no current order ID");
                 return;
             }
 
             try {
-                debugLog("Invoking AcceptOrder with orderId:", currentOrderId);
-                await window.hubConnection.invoke("AcceptOrder", currentOrderId);
-                debugLog("AcceptOrder invoked successfully");
+                // Create and submit a form to accept the order
+                const form = document.createElement('form');
+                form.method = 'post';
+                form.action = '/Panel/LaundryOrders';
+
+                const handlerInput = document.createElement('input');
+                handlerInput.type = 'hidden';
+                handlerInput.name = 'handler';
+                handlerInput.value = 'Accept';
+
+                const idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'id';
+                idInput.value = currentOrderId;
+
+                const tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = '__RequestVerificationToken';
+                tokenInput.value = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                form.appendChild(handlerInput);
+                form.appendChild(idInput);
+                form.appendChild(tokenInput);
+                document.body.appendChild(form);
+                form.submit();
             } catch (err) {
                 debugLog("Error accepting order:", err);
                 debugLog("Error stack:", err.stack);
@@ -133,15 +185,37 @@ function initializeUI() {
 
         declineButton.addEventListener('click', async () => {
             debugLog("Decline button clicked");
-            if (!currentOrderId || !window.hubConnection) {
-                debugLog("Cannot decline order: no current order ID or connection");
+            if (!currentOrderId) {
+                debugLog("Cannot decline order: no current order ID");
                 return;
             }
 
             try {
-                debugLog("Invoking DeclineOrder with orderId:", currentOrderId);
-                await window.hubConnection.invoke("DeclineOrder", currentOrderId);
-                debugLog("DeclineOrder invoked successfully");
+                // Create and submit a form to decline the order
+                const form = document.createElement('form');
+                form.method = 'post';
+                form.action = '/Panel/LaundryOrders';
+
+                const handlerInput = document.createElement('input');
+                handlerInput.type = 'hidden';
+                handlerInput.name = 'handler';
+                handlerInput.value = 'Decline';
+
+                const idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'id';
+                idInput.value = currentOrderId;
+
+                const tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = '__RequestVerificationToken';
+                tokenInput.value = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                form.appendChild(handlerInput);
+                form.appendChild(idInput);
+                form.appendChild(tokenInput);
+                document.body.appendChild(form);
+                form.submit();
             } catch (err) {
                 debugLog("Error declining order:", err);
                 debugLog("Error stack:", err.stack);
@@ -220,7 +294,7 @@ function formatOrderDetails(order) {
                 ${order.pickupTime ? `
                     <div class="mt-3">
                         <span class="font-medium text-gray-900">Odbiór:</span>
-                        ${new Date(order.pickupTime).toLocaleString('pl-PL')}
+                        ${formatDateGMT1(order.pickupTime)}
                     </div>
                 ` : ''}
                 <div class="mt-3">
@@ -246,39 +320,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         await requestNotificationPermission();
         initializeUI();
-
-        // Initialize SignalR with handlers for this view
-        window.initializeSignalR({
-            onNewOrder: (order) => {
-                currentOrderId = order.id;
-                showDesktopNotification(order);
-                if (orderDetailsElement) {
-                    orderDetailsElement.innerHTML = formatOrderDetails(order);
-                    showNotification();
-                    startTimer(180); // 3 minutes
-                }
-            },
-            onOrderAccepted: (orderId) => {
-                hideNotification();
-                const pendingOrdersElement = document.querySelector('[data-stat="pending"] dd');
-                const inProgressOrdersElement = document.querySelector('[data-stat="inProgress"] dd');
-                if (pendingOrdersElement && inProgressOrdersElement) {
-                    const pendingCount = parseInt(pendingOrdersElement.textContent);
-                    const inProgressCount = parseInt(inProgressOrdersElement.textContent);
-                    pendingOrdersElement.textContent = Math.max(0, pendingCount - 1);
-                    inProgressOrdersElement.textContent = inProgressCount + 1;
-                }
-            },
-            onOrderDeclined: (orderId) => {
-                hideNotification();
-                const pendingOrdersElement = document.querySelector('[data-stat="pending"] dd');
-                if (pendingOrdersElement) {
-                    const currentCount = parseInt(pendingOrdersElement.textContent);
-                    pendingOrdersElement.textContent = Math.max(0, currentCount - 1);
-                }
-            }
-        });
-    } catch (error) {
-        console.error("Error during initialization:", error);
+    } catch (err) {
+        debugLog("Error during initialization:", err);
+        debugLog("Error stack:", err.stack);
     }
 }); 

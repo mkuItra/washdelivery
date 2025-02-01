@@ -58,21 +58,21 @@ public static class DbInitializer
             // Extra services
             new LaundryService(
                 name: "Prasowanie",
-                description: "Usługa prasowania dla Twoich ubrań. Przy praniu ekspresowym cena +50%.",
+                description: "Usługa prasowania dla Twoich ubrań.",
                 price: 12.99m,
                 unit: "szt",
                 isExtraService: true),
                 
             new LaundryService(
                 name: "Pranie chemiczne",
-                description: "Profesjonalne czyszczenie chemiczne dla delikatnych tkanin. Przy praniu ekspresowym cena +50%.",
+                description: "Profesjonalne czyszczenie chemiczne dla delikatnych tkanin.",
                 price: 29.99m,
                 unit: "szt",
                 isExtraService: true),
                 
             new LaundryService(
                 name: "Pościel i duże rzeczy",
-                description: "Pranie pościeli, koców, zasłon i innych dużych elementów. Przy praniu ekspresowym cena +50%.",
+                description: "Pranie pościeli, koców, zasłon i innych dużych elementów.",
                 price: 19.99m,
                 unit: "kg",
                 isExtraService: true)
@@ -116,19 +116,44 @@ public static class DbInitializer
             var existingUser = await userManager.FindByEmailAsync(testUser.Email);
             if (existingUser == null)
             {
-                User user = testUser.Role == Roles.Customer 
-                    ? new Customer(
+                User user = testUser.Role switch
+                {
+                    Roles.Customer => new Customer(
+                        email: testUser.Email,
+                        phoneNumber: "123456789",
+                        firstName: testUser.FirstName,
+                        lastName: testUser.LastName
+                    ),
+                    Roles.Courier => new Courier(
+                        email: testUser.Email,
+                        phoneNumber: "123456789",
+                        firstName: testUser.FirstName,
+                        lastName: testUser.LastName
+                    ),
+                    Roles.LaundryWorker => new LaundryWorker(
+                        email: testUser.Email,
+                        phoneNumber: "123456789",
+                        firstName: testUser.FirstName,
+                        lastName: testUser.LastName,
+                        laundry: testLaundry
+                    ),
+                    Roles.LaundryManager => new LaundryManager(
+                        email: testUser.Email,
+                        phoneNumber: "123456789",
+                        firstName: testUser.FirstName,
+                        lastName: testUser.LastName,
+                        laundry: testLaundry
+                    ),
+                    _ => new User(
                         email: testUser.Email,
                         phoneNumber: "123456789",
                         firstName: testUser.FirstName,
                         lastName: testUser.LastName
                     )
-                    : new User(
-                        email: testUser.Email,
-                        phoneNumber: "123456789",
-                        firstName: testUser.FirstName,
-                        lastName: testUser.LastName
-                    );
+                };
+
+                // Ensure all seeded users are active
+                user.Activate();
 
                 var result = await userManager.CreateAsync(user, password);
                 if (result.Succeeded)
@@ -136,7 +161,7 @@ public static class DbInitializer
                     await userManager.AddToRoleAsync(user, testUser.Role);
                     
                     // Assign laundry worker to the test laundry
-                    if (testUser.Role == Roles.LaundryWorker && testLaundry != null)
+                    if ((testUser.Role == Roles.LaundryWorker || testUser.Role == Roles.LaundryManager) && testLaundry != null)
                     {
                         user.AssignToLaundry(testLaundry);
                         await userManager.UpdateAsync(user);

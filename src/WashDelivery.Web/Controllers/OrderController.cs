@@ -825,6 +825,54 @@ public class OrderController : Controller
         }
     }
 
+    [HttpPut("api/orders/{orderId}/status")]
+    [Authorize(Roles = Roles.Customer)]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateOrderStatus(string orderId, [FromBody] UpdateOrderStatusDto dto)
+    {
+        try
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            var order = await _orderService.GetOrderAsync(orderId);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            // Verify that this customer owns this order
+            if (order.CustomerId != userId)
+            {
+                return Forbid();
+            }
+
+            // Only allow cancellation of pending orders
+            if (dto.NewStatus == OrderStatus.Cancelled)
+            {
+                if (order.Status != OrderStatus.PendingLaundryAssignment)
+                {
+                    return BadRequest("Can only cancel orders that are pending laundry assignment");
+                }
+            }
+            else
+            {
+                return BadRequest("Invalid status update");
+            }
+
+            order = await _orderService.UpdateOrderStatusAsync(orderId, dto.NewStatus, dto.Comment);
+            return Ok(order);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating order {OrderId} status: {Message}", orderId, ex.Message);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
     public class AcceptOrderRequest
     {
         public string OrderId { get; set; } = string.Empty;

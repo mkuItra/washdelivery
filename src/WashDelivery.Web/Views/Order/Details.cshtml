@@ -1,6 +1,7 @@
 @model WashDelivery.Application.DTOs.Orders.OrderDto
 @using WashDelivery.Domain.Enums
 @using WashDelivery.Domain.Constants
+@using WashDelivery.Web.Helpers
 @{
     ViewData["Title"] = $"Zamówienie #{Model.Id}";
 
@@ -69,11 +70,10 @@
                             <div>
                                 <dt class="text-sm font-medium text-gray-900">Daty</dt>
                                 <dd class="mt-1 text-sm text-gray-500">
-                                    <div>Utworzono: @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
-                                    <div>Planowany odbiór: @Model.PickupTime.ToString("dd.MM.yyyy HH:mm")</div>
+                                    <div>Utworzono: @DateTimeHelper.FormatToLocalTime(Model.CreatedAt)</div>
                                     @if (Model.Status == OrderStatus.Delivered)
                                     {
-                                        <div>Dostarczono: @Model.UpdatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                                        <div>Dostarczono: @DateTimeHelper.FormatToLocalTime(Model.UpdatedAt)</div>
                                     }
                                 </dd>
                             </div>
@@ -103,12 +103,6 @@
                             <a href="@Url.Action("List")" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
                                 Powrót do listy
                             </a>
-                            @if (Model.Status == OrderStatus.PendingLaundryAssignment)
-                            {
-                                <button onclick="cancelOrder('@Model.Id')" class="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500">
-                                    Anuluj zamówienie
-                                </button>
-                            }
                         </div>
                     </div>
                 </div>

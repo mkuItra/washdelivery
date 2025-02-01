@@ -27,8 +27,23 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
     });
 });
 
+// Configure timezone
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("pl-PL");
+    var supportedCultures = new[] { new System.Globalization.CultureInfo("pl-PL") };
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
+
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        // Configure JSON serialization to handle UTC dates
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonDateTimeConverter());
+    });
 
 // Configure antiforgery
 builder.Services.AddAntiforgery(options => {

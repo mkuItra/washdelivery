@@ -23,7 +23,7 @@ public class User : IdentityUser
         PhoneNumber = phoneNumber;
         FirstName = firstName;
         LastName = lastName;
-        IsActive = true;
+        IsActive = false;
     }
 
     public void Activate() => IsActive = true;

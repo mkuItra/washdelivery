@@ -48,6 +48,9 @@ public class AuthService : IAuthService
             lastName: dto.LastName
         );
 
+        // Ensure courier is inactive until verified by admin
+        courier.Deactivate();
+
         await _userRepository.AddAsync(courier);
         var roleResult = await AssignRoleAsync(courier, Roles.Courier);
         return roleResult ? 

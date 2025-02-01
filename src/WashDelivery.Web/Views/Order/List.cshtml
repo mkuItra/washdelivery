@@ -1,6 +1,7 @@
 @model WashDelivery.Web.ViewModels.Orders.CustomerOrderListViewModel
 @using WashDelivery.Domain.Enums
 @using WashDelivery.Domain.Constants
+@using WashDelivery.Web.Helpers
 
 @{
     ViewData["Title"] = "Moje zamówienia";
@@ -35,7 +36,7 @@
                                     </a>
                                 </h3>
                                 <p class="mt-1 text-xs text-gray-500">
-                                    Utworzono: @order.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                                    Utworzono: @DateTimeHelper.FormatToLocalTime(order.CreatedAt)
                                 </p>
                             </div>
                             <div class="flex items-center gap-4">
@@ -56,33 +57,4 @@
             </div>
         }
     </div>
-</div>
-
-@section Scripts {
-    <script>
-        async function cancelOrder(orderId) {
-            if (!confirm('Czy na pewno chcesz anulować to zamówienie?')) return;
-
-            try {
-                const response = await fetch(`/api/orders/${orderId}/status`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                    },
-                    body: JSON.stringify({
-                        newStatus: '@OrderStatus.Cancelled',
-                        comment: 'Anulowane przez klienta'
-                    })
-                });
-
-                if (!response.ok) throw new Error('Failed to cancel order');
-
-                window.location.reload();
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Wystąpił błąd podczas anulowania zamówienia');
-            }
-        }
-    </script>
-} 
+</div> 

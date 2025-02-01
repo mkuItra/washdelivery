@@ -61,6 +61,12 @@ public class PanelController : Controller
             return NotFound();
         }
 
+        if (!user.IsActive)
+        {
+            TempData["Error"] = "Twoje konto nie zostało jeszcze aktywowane. Poczekaj na weryfikację przez administratora.";
+            return RedirectToAction("Logout", "Account");
+        }
+
         var roles = await _userManager.GetRolesAsync(user);
 
         if (roles.Contains(Roles.Admin))
@@ -178,6 +184,7 @@ public class PanelController : Controller
         return NotFound();
     }
 
+    [HttpGet]
     [Authorize(Roles = Roles.Customer)]
     public async Task<IActionResult> GetAddress(string id)
     {
@@ -185,11 +192,13 @@ public class PanelController : Controller
         if (user == null)
             return NotFound();
 
-        var address = user.Addresses.FirstOrDefault(a => a.Id == id);
+        var address = await _dbContext.CustomerDeliveryAddresses
+            .FirstOrDefaultAsync(a => a.Id == id && a.CustomerId == user.Id);
+
         if (address == null)
             return NotFound();
 
-        return Ok(new AddressDto
+        return View("_AddressForm", new AddressDto
         {
             Id = address.Id,
             Name = address.Name,
@@ -203,22 +212,40 @@ public class PanelController : Controller
         });
     }
 
-    [HttpPost("AddAddress")]
+    [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = Roles.Customer)]
-    public async Task<IActionResult> AddAddress([FromBody] CreateAddressDto dto)
+    public async Task<IActionResult> AddAddress(CreateAddressDto dto)
     {
-        try
+        try 
         {
-            var customer = await _userManager.GetUserAsync(User) as Customer;
-            if (customer == null)
+            var user = await _userManager.GetUserAsync(User) as Customer;
+            if (user == null)
                 return NotFound();
 
             var coordinates = await _geocodingService.GetCoordinatesAsync(
                 $"{dto.Street} {dto.BuildingNumber}, {dto.PostalCode} {dto.City}");
 
+            var hasExistingAddresses = await _dbContext.CustomerDeliveryAddresses
+                .AnyAsync(a => a.CustomerId == user.Id);
+
+            // If this is the first address or user wants it as default, handle default address logic
+            var shouldBeDefault = !hasExistingAddresses || dto.IsDefault;
+            if (shouldBeDefault)
+            {
+                var defaultAddresses = await _dbContext.CustomerDeliveryAddresses
+                    .Where(a => a.CustomerId == user.Id && a.IsDefault)
+                    .ToListAsync();
+
+                foreach (var defaultAddress in defaultAddresses)
+                {
+                    defaultAddress.IsDefault = false;
+                    _dbContext.CustomerDeliveryAddresses.Update(defaultAddress);
+                }
+            }
+
             var address = new CustomerDeliveryAddress(
-                customerId: customer.Id,
+                customerId: user.Id,
                 name: dto.Name,
                 street: dto.Street,
                 buildingNumber: dto.BuildingNumber,
@@ -228,33 +255,42 @@ public class PanelController : Controller
                 latitude: Convert.ToDecimal(coordinates?.Latitude ?? 0),
                 longitude: Convert.ToDecimal(coordinates?.Longitude ?? 0),
                 additionalInstructions: dto.AdditionalInstructions,
-                isDefault: dto.IsDefault
+                isDefault: shouldBeDefault
             );
 
-            customer.AddAddress(address);
-            await _userManager.UpdateAsync(customer);
+            _dbContext.CustomerDeliveryAddresses.Add(address);
+            await _dbContext.SaveChangesAsync();
 
-            return Ok();
+            TempData["SuccessMessage"] = "Adres został dodany";
+            return RedirectToAction(nameof(Settings));
         }
-        catch
+        catch (Exception ex)
         {
-            return BadRequest("Error adding address");
+            _logger.LogError(ex, "Error adding address: {Message}", ex.Message);
+            TempData["Error"] = "Wystąpił błąd podczas dodawania adresu";
+            return RedirectToAction(nameof(Settings));
         }
     }
 
-    [HttpPost("UpdateAddress")]
+    [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = Roles.Customer)]
-    public async Task<IActionResult> UpdateAddress([FromBody] UpdateAddressDto dto)
+    public async Task<IActionResult> UpdateAddress(UpdateAddressDto dto)
     {
         var user = await _userManager.GetUserAsync(User) as Customer;
         if (user == null)
             return NotFound();
 
-        var address = user.Addresses.FirstOrDefault(a => a.Id == dto.Id);
+        var address = await _dbContext.CustomerDeliveryAddresses
+            .FirstOrDefaultAsync(a => a.Id == dto.Id && a.CustomerId == user.Id);
+
         if (address == null)
             return NotFound();
 
+        var coordinates = await _geocodingService.GetCoordinatesAsync(
+            $"{dto.Street} {dto.BuildingNumber}, {dto.PostalCode} {dto.City}");
+
+        // If we're setting this address as default, unset all others
         if (dto.IsDefault)
         {
             var defaultAddresses = await _dbContext.CustomerDeliveryAddresses
@@ -263,16 +299,36 @@ public class PanelController : Controller
 
             foreach (var defaultAddress in defaultAddresses)
             {
-                defaultAddress.SetAsNotDefault();
+                defaultAddress.IsDefault = false;
                 _dbContext.CustomerDeliveryAddresses.Update(defaultAddress);
             }
         }
+        // If we're unsetting this as default, make sure there's another default address
+        else if (address.IsDefault)
+        {
+            var hasOtherAddresses = await _dbContext.CustomerDeliveryAddresses
+                .AnyAsync(a => a.CustomerId == user.Id && a.Id != dto.Id);
 
-        var coordinates = await _geocodingService.GetCoordinatesAsync(
-            $"{dto.Street} {dto.BuildingNumber}, {dto.PostalCode} {dto.City}");
+            if (hasOtherAddresses)
+            {
+                // Get the first non-default address and make it default
+                var newDefaultAddress = await _dbContext.CustomerDeliveryAddresses
+                    .FirstOrDefaultAsync(a => a.CustomerId == user.Id && a.Id != dto.Id);
+                
+                if (newDefaultAddress != null)
+                {
+                    newDefaultAddress.IsDefault = true;
+                    _dbContext.CustomerDeliveryAddresses.Update(newDefaultAddress);
+                }
+            }
+            else
+            {
+                // If this is the only address, force it to stay default
+                dto.IsDefault = true;
+            }
+        }
 
-        var updatedAddress = new CustomerDeliveryAddress(
-            customerId: user.Id,
+        address.Update(
             name: dto.Name,
             street: dto.Street,
             buildingNumber: dto.BuildingNumber,
@@ -285,14 +341,14 @@ public class PanelController : Controller
             isDefault: dto.IsDefault
         );
 
-        _dbContext.CustomerDeliveryAddresses.Remove(address);
-        await _dbContext.CustomerDeliveryAddresses.AddAsync(updatedAddress);
+        _dbContext.CustomerDeliveryAddresses.Update(address);
         await _dbContext.SaveChangesAsync();
 
-        return Ok();
+        TempData["SuccessMessage"] = "Adres został zaktualizowany";
+        return RedirectToAction(nameof(Settings));
     }
 
-    [HttpDelete("DeleteAddress/{id}")]
+    [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = Roles.Customer)]
     public async Task<IActionResult> DeleteAddress(string id)
@@ -301,17 +357,23 @@ public class PanelController : Controller
         if (user == null)
             return NotFound();
 
-        var address = user.Addresses.FirstOrDefault(a => a.Id == id);
+        var address = await _dbContext.CustomerDeliveryAddresses
+            .FirstOrDefaultAsync(a => a.Id == id && a.CustomerId == user.Id);
+
         if (address == null)
             return NotFound();
 
         if (address.IsDefault)
-            return BadRequest("Cannot delete default address");
+        {
+            TempData["Error"] = "Nie można usunąć domyślnego adresu";
+            return RedirectToAction(nameof(Settings));
+        }
 
-        user.Addresses.Remove(address);
-        await _userManager.UpdateAsync(user);
+        _dbContext.CustomerDeliveryAddresses.Remove(address);
+        await _dbContext.SaveChangesAsync();
 
-        return Ok();
+        TempData["SuccessMessage"] = "Adres został usunięty";
+        return RedirectToAction(nameof(Settings));
     }
 
     [Authorize]
@@ -491,6 +553,12 @@ public class PanelController : Controller
         if (courier == null)
         {
             return RedirectToAction("Login", "Account");
+        }
+
+        if (!courier.IsActive)
+        {
+            TempData["Error"] = "Twoje konto nie zostało jeszcze aktywowane. Poczekaj na weryfikację przez administratora.";
+            return RedirectToAction("Logout", "Account");
         }
 
         var availableOrders = new List<OrderDto>();

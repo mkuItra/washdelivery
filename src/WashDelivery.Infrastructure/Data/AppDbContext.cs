@@ -31,6 +31,23 @@ namespace WashDelivery.Infrastructure.Data
         {
             base.OnModelCreating(builder);
 
+            // Configure all DateTime properties to use UTC
+            foreach (var entityType in builder.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
+                    {
+                        property.SetValueConverter(
+                            new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateTime, DateTime>(
+                                v => v.ToUniversalTime(),
+                                v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+                            )
+                        );
+                    }
+                }
+            }
+
             builder.Entity<User>()
                 .HasDiscriminator<string>("UserType")
                 .HasValue<User>("User")
