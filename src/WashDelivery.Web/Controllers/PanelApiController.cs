@@ -81,12 +81,26 @@ public class PanelApiController : ControllerBase
     {
         try 
         {
-            var user = await _userManager.GetUserAsync(User) as Customer;
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+                return BadRequest(new { errors });
+            }
+
+            var user = await _userManager.GetUserAsync(User);
             if (user == null)
-                return BadRequest("User is not a customer");
+                return BadRequest(new { errors = new[] { "Użytkownik nie został znaleziony" } });
 
             var coordinates = await _geocodingService.GetCoordinatesAsync(
                 $"{dto.Street} {dto.BuildingNumber}, {dto.PostalCode} {dto.City}");
+
+            if (coordinates == null)
+            {
+                return BadRequest(new { errors = new[] { "Nie udało się zweryfikować adresu. Sprawdź poprawność danych." } });
+            }
 
             var hasExistingAddresses = await _dbContext.CustomerDeliveryAddresses
                 .AnyAsync(a => a.CustomerId == user.Id);
@@ -112,8 +126,8 @@ public class PanelApiController : ControllerBase
                 apartmentNumber: dto.ApartmentNumber,
                 city: dto.City,
                 postalCode: dto.PostalCode,
-                latitude: Convert.ToDecimal(coordinates?.Latitude ?? 0),
-                longitude: Convert.ToDecimal(coordinates?.Longitude ?? 0),
+                latitude: Convert.ToDecimal(coordinates.Latitude),
+                longitude: Convert.ToDecimal(coordinates.Longitude),
                 additionalInstructions: dto.AdditionalInstructions,
                 isDefault: !hasExistingAddresses || dto.IsDefault
             );
@@ -121,13 +135,12 @@ public class PanelApiController : ControllerBase
             _dbContext.CustomerDeliveryAddresses.Add(address);
             await _dbContext.SaveChangesAsync();
 
-            return Ok();
+            return Ok(new { id = address.Id });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error adding address: {Message}", ex.Message);
-            _logger.LogError(ex, "Stack trace: {StackTrace}", ex.StackTrace);
-            return StatusCode(StatusCodes.Status500InternalServerError, "Error adding address");
+            return BadRequest(new { errors = new[] { "Wystąpił błąd podczas dodawania adresu. Spróbuj ponownie później." } });
         }
     }
 
@@ -136,36 +149,71 @@ public class PanelApiController : ControllerBase
     [Authorize(Roles = Roles.Customer)]
     public async Task<IActionResult> UpdateAddress([FromBody] UpdateAddressDto dto)
     {
-        var user = await _userManager.GetUserAsync(User) as Customer;
-        if (user == null)
-            return BadRequest("User is not a customer");
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+                return BadRequest(new { errors });
+            }
 
-        var address = await _dbContext.CustomerDeliveryAddresses
-            .FirstOrDefaultAsync(a => a.Id == dto.Id && a.CustomerId == user.Id);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return BadRequest(new { errors = new[] { "Użytkownik nie został znaleziony" } });
 
-        if (address == null)
-            return NotFound();
+            var address = await _dbContext.CustomerDeliveryAddresses
+                .FirstOrDefaultAsync(a => a.Id == dto.Id && a.CustomerId == user.Id);
 
-        var coordinates = await _geocodingService.GetCoordinatesAsync(
-            $"{dto.Street} {dto.BuildingNumber}, {dto.PostalCode} {dto.City}");
+            if (address == null)
+                return BadRequest(new { errors = new[] { "Adres nie został znaleziony" } });
 
-        address.Update(
-            name: dto.Name,
-            street: dto.Street,
-            buildingNumber: dto.BuildingNumber,
-            apartmentNumber: dto.ApartmentNumber,
-            city: dto.City,
-            postalCode: dto.PostalCode,
-            latitude: Convert.ToDecimal(coordinates?.Latitude ?? (double)address.Latitude),
-            longitude: Convert.ToDecimal(coordinates?.Longitude ?? (double)address.Longitude),
-            additionalInstructions: dto.AdditionalInstructions,
-            isDefault: dto.IsDefault
-        );
+            var coordinates = await _geocodingService.GetCoordinatesAsync(
+                $"{dto.Street} {dto.BuildingNumber}, {dto.PostalCode} {dto.City}");
 
-        _dbContext.CustomerDeliveryAddresses.Update(address);
-        await _dbContext.SaveChangesAsync();
+            if (coordinates == null)
+            {
+                return BadRequest(new { errors = new[] { "Nie udało się zweryfikować adresu. Sprawdź poprawność danych." } });
+            }
 
-        return Ok();
+            if (dto.IsDefault)
+            {
+                var defaultAddresses = await _dbContext.CustomerDeliveryAddresses
+                    .Where(a => a.CustomerId == user.Id && a.IsDefault && a.Id != dto.Id)
+                    .ToListAsync();
+
+                foreach (var defaultAddress in defaultAddresses)
+                {
+                    defaultAddress.IsDefault = false;
+                    _dbContext.CustomerDeliveryAddresses.Update(defaultAddress);
+                }
+            }
+
+            address.Update(
+                name: dto.Name,
+                street: dto.Street,
+                buildingNumber: dto.BuildingNumber,
+                apartmentNumber: dto.ApartmentNumber,
+                city: dto.City,
+                postalCode: dto.PostalCode,
+                latitude: Convert.ToDecimal(coordinates.Latitude),
+                longitude: Convert.ToDecimal(coordinates.Longitude),
+                additionalInstructions: dto.AdditionalInstructions,
+                isDefault: dto.IsDefault
+            );
+
+            _dbContext.CustomerDeliveryAddresses.Update(address);
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new { id = address.Id });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating address: {Message}", ex.Message);
+            return BadRequest(new { errors = new[] { "Wystąpił błąd podczas aktualizacji adresu. Spróbuj ponownie później." } });
+        }
     }
 
     [HttpDelete("addresses/{id}")]
@@ -173,23 +221,31 @@ public class PanelApiController : ControllerBase
     [Authorize(Roles = Roles.Customer)]
     public async Task<IActionResult> DeleteAddress(string id)
     {
-        var user = await _userManager.GetUserAsync(User) as Customer;
-        if (user == null)
-            return BadRequest("User is not a customer");
+        try
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return BadRequest(new { errors = new[] { "Użytkownik nie został znaleziony" } });
 
-        var address = await _dbContext.CustomerDeliveryAddresses
-            .FirstOrDefaultAsync(a => a.Id == id && a.CustomerId == user.Id);
+            var address = await _dbContext.CustomerDeliveryAddresses
+                .FirstOrDefaultAsync(a => a.Id == id && a.CustomerId == user.Id);
 
-        if (address == null)
-            return NotFound();
+            if (address == null)
+                return BadRequest(new { errors = new[] { "Adres nie został znaleziony" } });
 
-        if (address.IsDefault)
-            return BadRequest("Cannot delete default address");
+            if (address.IsDefault)
+                return BadRequest(new { errors = new[] { "Nie można usunąć domyślnego adresu" } });
 
-        _dbContext.CustomerDeliveryAddresses.Remove(address);
-        await _dbContext.SaveChangesAsync();
+            _dbContext.CustomerDeliveryAddresses.Remove(address);
+            await _dbContext.SaveChangesAsync();
 
-        return Ok();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting address: {Message}", ex.Message);
+            return BadRequest(new { errors = new[] { "Wystąpił błąd podczas usuwania adresu. Spróbuj ponownie później." } });
+        }
     }
 
     [HttpGet("users/{userId}")]

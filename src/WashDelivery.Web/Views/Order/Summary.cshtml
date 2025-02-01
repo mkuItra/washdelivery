@@ -1,4 +1,5 @@
 @model WashDelivery.Web.ViewModels.Orders.OrderSummaryViewModel
+@using WashDelivery.Web.Helpers
 
 @{
     ViewData["Title"] = "Podsumowanie zamówienia";
@@ -69,7 +70,7 @@
                                             <h4 class="text-sm font-medium text-gray-900">Odbiór</h4>
                                             <p class="text-sm text-gray-900">@Model.PickupAddress.Street @Model.PickupAddress.BuildingNumber</p>
                                             <p class="text-sm text-gray-500">@Model.PickupAddress.PostalCode @Model.PickupAddress.City</p>
-                                            <p class="text-sm text-gray-500">@Model.PickupTime.ToString("dd.MM.yyyy HH:mm")</p>
+                                            <p class="text-sm text-gray-500">@DateTimeHelper.FormatToLocalTime(Model.PickupTime)</p>
                                         </div>
                                     </div>
                                 </div>

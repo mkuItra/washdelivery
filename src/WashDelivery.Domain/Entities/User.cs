@@ -13,8 +13,12 @@ public class User : IdentityUser
     public string? UpdatedBy { get; set; }
     public string? LaundryId { get; private set; }
     public Laundry? Laundry { get; private set; }
+    public string UserType { get; set; } = "User";
 
-    public User() { }
+    public User() 
+    {
+        CreatedAt = DateTime.UtcNow;
+    }
 
     public User(string email, string phoneNumber, string firstName, string lastName)
     {
@@ -23,7 +27,9 @@ public class User : IdentityUser
         PhoneNumber = phoneNumber;
         FirstName = firstName;
         LastName = lastName;
-        IsActive = false;
+        CreatedAt = DateTime.UtcNow;
+        IsActive = false; // Will be set to true for admins in the service layer
+        UserType = "User"; // Default value, will be updated in service layer
     }
 
     public void Activate() => IsActive = true;
@@ -39,5 +45,10 @@ public class User : IdentityUser
     {
         LaundryId = null;
         Laundry = null;
+    }
+
+    public void SetUserType(string userType)
+    {
+        UserType = userType;
     }
 } 

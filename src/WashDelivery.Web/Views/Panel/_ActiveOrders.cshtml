@@ -1,6 +1,7 @@
 @model IEnumerable<WashDelivery.Application.DTOs.Orders.OrderDto>
 @using WashDelivery.Domain.Enums
 @using WashDelivery.Domain.Constants
+@using WashDelivery.Web.Helpers
 
 @if (Model.Any())
 {
@@ -58,7 +59,7 @@
                         </div>
                     }
                     <p class="text-sm text-gray-500">
-                        Czas: @order.PickupTime.ToString("dd.MM.yyyy HH:mm")
+                        Czas: @DateTimeHelper.FormatToLocalTime(order.PickupTime)
                     </p>
                     @if (!string.IsNullOrEmpty(order.CourierInstructions))
                     {

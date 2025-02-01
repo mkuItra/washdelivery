@@ -47,7 +47,7 @@ builder.Services.AddControllersWithViews()
 
 // Configure antiforgery
 builder.Services.AddAntiforgery(options => {
-    options.HeaderName = "X-XSRF-TOKEN";
+    options.HeaderName = "RequestVerificationToken";
 });
 
 builder.Services.AddSignalR(options =>

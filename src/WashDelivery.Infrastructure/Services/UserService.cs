@@ -228,6 +228,27 @@ public class UserService : IUserService
     {
         var user = new User(dto.Email, dto.PhoneNumber, dto.FirstName, dto.LastName);
         
+        // Set user type based on role
+        switch (dto.Role)
+        {
+            case Roles.Admin:
+                user.SetUserType("Admin");
+                user.Activate(); // Admins are active by default
+                break;
+            case Roles.Customer:
+                user.SetUserType("Customer");
+                break;
+            case Roles.Courier:
+                user.SetUserType("Courier");
+                break;
+            case Roles.LaundryWorker:
+                user.SetUserType("LaundryWorker");
+                break;
+            case Roles.LaundryManager:
+                user.SetUserType("LaundryManager");
+                break;
+        }
+
         var result = await _userManager.CreateAsync(user, dto.Password);
         if (!result.Succeeded)
         {
