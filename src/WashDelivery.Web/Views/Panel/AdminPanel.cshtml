@@ -28,13 +28,6 @@
                                 </svg>
                                 Dodaj użytkownika
                             </a>
-                            <a asp-controller="Laundry" asp-action="Create"
-                               class="inline-flex items-center gap-x-2 rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                                <svg class="-ml-0.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" />
-                                </svg>
-                                Dodaj pralnię
-                            </a>
                         </div>
                     </div>
 
@@ -73,34 +66,12 @@
                                         </svg>
                                     </div>
                                 </dt>
-                                <dd class="flex items-baseline7">
+                                <dd class="flex items-baseline">
                                     <div class="inset-x-0 bottom-0 bg-gray-50 px-4 py-4 sm:px-6 w-full">
                                         <div class="text-sm">
                                             <a asp-controller="Laundry" asp-action="Index" class="font-medium text-indigo-600 hover:text-indigo-500">
                                                 Zarządzaj pralniami
                                                 <span class="sr-only"> pralniami</span>
-                                                <span aria-hidden="true"> &rarr;</span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </dd>
-                            </div>
-
-                            <!-- Couriers Section -->
-                            <div class="relative overflow-hidden rounded-lg bg-white shadow">
-                                <dt>
-                                    <div class="z-10 rounded-md bg-indigo-500 p-3">
-                                        <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </div>
-                                </dt>
-                                <dd class="flex items-baseline">
-                                    <div class="inset-x-0 bottom-0 bg-gray-50 px-4 py-4 sm:px-6 w-full">
-                                        <div class="text-sm">
-                                            <a asp-action="PendingCouriers" class="font-medium text-indigo-600 hover:text-indigo-500">
-                                                Oczekujący kurierzy
-                                                <span class="sr-only"> kurierzy</span>
                                                 <span aria-hidden="true"> &rarr;</span>
                                             </a>
                                         </div>

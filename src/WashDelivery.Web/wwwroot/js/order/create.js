@@ -67,8 +67,8 @@ async function nextStep() {
     const requestData = {
         pickupAddressId: selectedPickupAddressId,
         deliveryAddressId: selectedDeliveryAddressId,
-        pickupDate,
-        pickupTime,
+        pickupTimeOption,
+        pickupTime: pickupTimeOption === 'scheduled' ? document.getElementById('pickup-time').value : null,
         leaveAtDoor,
         courierInstructions
     };
@@ -102,6 +102,7 @@ async function nextStep() {
             pickupAddressId: selectedPickupAddressId,
             deliveryAddressId: selectedDeliveryAddressId,
             pickupTime: pickupTimeOption === 'scheduled' ? document.getElementById('pickup-time').value : null,
+            pickupTimeOption,
             leaveAtDoor,
             courierInstructions
         };
@@ -112,7 +113,7 @@ async function nextStep() {
     } catch (error) {
         console.error('Error saving address details:', error);
         const errorsList = document.getElementById('validation-errors-list');
-        errorsList.innerHTML = `<p>${error.message || 'Wystąpił błąd podczas zapisywania danych. Spróbuj ponownie.'}</p>`;
+        errorsList.innerHTML = `<p>${error.message}</p>`;
         document.getElementById('validation-errors').classList.remove('hidden');
     }
 } 

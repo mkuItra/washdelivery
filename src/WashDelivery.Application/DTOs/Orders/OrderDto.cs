@@ -37,8 +37,8 @@ public class OrderDto
             LaundryId = order.LaundryId,
             CourierId = order.CourierId,
             Status = order.Status,
-            PickupTime = DateTime.SpecifyKind(order.PickupTime, DateTimeKind.Utc),
-            DeliveredAt = order.DeliveredAt.HasValue ? DateTime.SpecifyKind(order.DeliveredAt.Value, DateTimeKind.Utc) : null,
+            PickupTime = order.PickupTime,
+            DeliveredAt = order.DeliveredAt,
             PickupAddress = new AddressDto
             {
                 Street = order.PickupAddress.Street,
@@ -69,11 +69,11 @@ public class OrderDto
             StatusHistory = order.StatusHistory.Select(h => new OrderStatusHistoryDto
             {
                 Status = h.Status,
-                Timestamp = DateTime.SpecifyKind(h.ChangedAt, DateTimeKind.Utc),
+                Timestamp = h.ChangedAt,
                 Comment = h.Note
             }).ToList(),
-            CreatedAt = DateTime.SpecifyKind(order.CreatedAt, DateTimeKind.Utc),
-            UpdatedAt = DateTime.SpecifyKind(order.DeliveredAt ?? order.CreatedAt, DateTimeKind.Utc)
+            CreatedAt = order.CreatedAt,
+            UpdatedAt = order.DeliveredAt ?? order.CreatedAt
         };
     }
 } 

@@ -324,7 +324,7 @@ public class OrderController : Controller
                 PickupAddressId = model.PickupAddressId,
                 DeliveryAddressId = model.DeliveryAddressId,
                 PickupTime = model.PickupTimeOption == "scheduled" 
-                    ? TimeZoneInfo.ConvertTimeToUtc(DateTime.Parse(model.PickupTime!), TimeZoneInfo.FindSystemTimeZoneById("Europe/Warsaw"))
+                    ? DateTime.SpecifyKind(DateTime.Parse(model.PickupTime!, CultureInfo.InvariantCulture), DateTimeKind.Utc)
                     : DateTime.UtcNow.AddHours(1),
                 LeaveAtDoor = model.LeaveAtDoor,
                 CourierInstructions = model.CourierInstructions

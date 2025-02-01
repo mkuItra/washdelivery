@@ -11,12 +11,6 @@
             <h1 class="text-2xl font-semibold leading-6 text-gray-900">Pralnie</h1>
             <p class="mt-2 text-sm text-gray-700">Lista wszystkich pralni w systemie.</p>
         </div>
-        <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-            <a asp-action="Create"
-               class="block rounded-md bg-indigo-600 px-3.5 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                Dodaj pralnię
-            </a>
-        </div>
     </div>
 
     <!-- Mobile view -->
@@ -43,22 +37,13 @@
                     <div class="mt-4 space-y-4">
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Adres</dt>
-                            <dd class="mt-1 text-sm text-gray-900">@laundry.Address</dd>
+                            <dd class="mt-1 text-sm text-gray-900">@laundry.Address.Street, @laundry.Address.PostalCode @laundry.Address.City</dd>
                         </div>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Kontakt</dt>
                             <dd class="mt-1 text-sm text-gray-900">
                                 <div>@laundry.ContactEmail</div>
                                 <div>@laundry.ContactPhone</div>
-                            </dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Ocena</dt>
-                            <dd class="mt-1 text-sm text-gray-900 flex items-center">
-                                <svg class="text-yellow-400 h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
-                                </svg>
-                                <span class="ml-1">@laundry.Rating.ToString("0.0")</span>
                             </dd>
                         </div>
                     </div>
@@ -100,7 +85,6 @@
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Adres</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Kontakt</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
-                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Ocena</th>
                                     <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                                         <span class="sr-only">Akcje</span>
                                     </th>
@@ -113,7 +97,7 @@
                                         <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                                             @laundry.Name
                                         </td>
-                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">@laundry.Address</td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">@laundry.Address.Street, @laundry.Address.PostalCode @laundry.Address.City</td>
                                         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                             <div>@laundry.ContactEmail</div>
                                             <div>@laundry.ContactPhone</div>
@@ -131,14 +115,6 @@
                                                     Nieaktywna
                                                 </span>
                                             }
-                                        </td>
-                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                            <div class="flex items-center">
-                                                <svg class="text-yellow-400 h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
-                                                </svg>
-                                                <span class="ml-1">@laundry.Rating.ToString("0.0")</span>
-                                            </div>
                                         </td>
                                         <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                                             <a asp-action="Edit" asp-route-id="@laundry.Id" class="text-indigo-600 hover:text-indigo-900 mr-4">Edytuj</a>
