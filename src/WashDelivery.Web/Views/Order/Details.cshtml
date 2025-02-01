@@ -78,13 +78,6 @@
                                 </dd>
                             </div>
 
-                            <div>
-                                <dt class="text-sm font-medium text-gray-900">Opłaty</dt>
-                                <dd class="mt-1 text-sm text-gray-500">
-                                    <div>Opłata za dostawę: @Model.DeliveryFee.ToString("C")</div>
-                                </dd>
-                            </div>
-
                             @if (!string.IsNullOrEmpty(Model.CourierId))
                             {
                                 <div>
@@ -95,6 +88,31 @@
                                 </div>
                             }
                         </dl>
+                    </div>
+
+                    <!-- Order Items -->
+                    <div class="mt-6 border-t border-gray-100 pt-6">
+                        <h3 class="text-sm font-medium text-gray-900">Zamówione usługi</h3>
+                        <div class="mt-4 space-y-4">
+                            @foreach (var item in Model.Items)
+                            {
+                                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                    <div class="flex justify-between">
+                                        <div>
+                                            <h4 class="text-base font-medium text-gray-900">@item.Name</h4>
+                                            @if (item.Weight.HasValue)
+                                            {
+                                                <p class="text-sm text-gray-500">@item.Price.ToString("0.00")zł/kg</p>
+                                            }
+                                            else
+                                            {
+                                                <p class="text-sm text-gray-500">@item.Price.ToString("0.00")zł</p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </div>
 
                     <!-- Actions -->

@@ -152,13 +152,25 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-XSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
                     }
                 });
 
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    let errorMessage;
+                    try {
+                        const errorJson = JSON.parse(errorText);
+                        errorMessage = errorJson.message || errorJson.error || 'Wystąpił błąd podczas składania zamówienia';
+                    } catch {
+                        errorMessage = errorText || 'Wystąpił błąd podczas składania zamówienia';
+                    }
+                    throw new Error(errorMessage);
+                }
+
                 const result = await response.json();
                 if (!result.success) {
-                    throw new Error(result.message || 'Failed to create order');
+                    throw new Error(result.message || 'Wystąpił błąd podczas składania zamówienia');
                 }
 
                 window.location.href = '@Url.Action("Details", "Order")/' + result.orderId;

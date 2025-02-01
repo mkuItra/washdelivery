@@ -502,7 +502,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-XSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
                     },
                     body: JSON.stringify({
                         pickupAddressId: selectedPickupAddressId,
@@ -515,14 +515,24 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to save address details');
+                    const errorText = await response.text();
+                    let errorMessage;
+                    try {
+                        const errorJson = JSON.parse(errorText);
+                        errorMessage = errorJson.message || errorJson.error || 'Wystąpił błąd podczas zapisywania danych adresowych';
+                    } catch {
+                        errorMessage = errorText || 'Wystąpił błąd podczas zapisywania danych adresowych';
+                    }
+                    throw new Error(errorMessage);
                 }
 
                 // Proceed to next step
                 window.location.href = '@Url.Action("LaundryDetails")';
             } catch (error) {
                 console.error('Error saving address details:', error);
-                alert('Wystąpił błąd podczas zapisywania danych adresowych');
+                const validationErrorsList = document.getElementById('validation-errors-list');
+                validationErrorsList.innerHTML = `<p>• ${error.message}</p>`;
+                document.getElementById('validation-errors').classList.remove('hidden');
             }
         }
     </script>

@@ -37,13 +37,27 @@
                                 </div>
                                 <div class="mt-4">
                                     <div class="text-sm text-gray-600">
-                                        <div class="font-medium text-gray-900 mb-2">Zamówione usługi:</div>
-                                        <ul class="list-disc pl-5 space-y-1">
+                                        <div class="font-medium text-gray-900 mb-2">Zamówione usługi</div>
+                                        <div class="space-y-4">
                                             @foreach (var item in order.Items)
                                             {
-                                                <li>@item.Name - @item.Quantity szt. @(item.Weight.HasValue ? $"({item.Weight} kg)" : "") - @item.Price.ToString("C")</li>
+                                                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                                    <div class="flex justify-between">
+                                                        <div>
+                                                            <h4 class="text-base font-medium text-gray-900">@item.Name</h4>
+                                                            @if (item.Weight.HasValue)
+                                                            {
+                                                                <p class="text-sm text-gray-500">@item.Price.ToString("0.00")zł/kg</p>
+                                                            }
+                                                            else
+                                                            {
+                                                                <p class="text-sm text-gray-500">@item.Price.ToString("0.00")zł</p>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             }
-                                        </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
