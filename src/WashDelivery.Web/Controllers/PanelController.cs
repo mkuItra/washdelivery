@@ -152,7 +152,23 @@ public class PanelController : Controller
         }
         else if (roles.Contains(Roles.LaundryWorker))
         {
-            return View("LaundryWorkerPanel");
+            var laundryId = user.LaundryId;
+            if (string.IsNullOrEmpty(laundryId))
+            {
+                return NotFound("No laundry assigned to this worker");
+            }
+
+            var orders = await _orderService.GetLaundryOrdersAsync(laundryId);
+            
+            var viewModel = new LaundryOrderListViewModel
+            {
+                InProgressOrders = orders
+                    .Where(o => o.Status == OrderStatus.InLaundry)
+                    .OrderByDescending(o => o.CreatedAt)
+                    .ToList()
+            };
+
+            return View("LaundryWorkerPanel", viewModel);
         }
         else if (roles.Contains(Roles.Customer))
         {

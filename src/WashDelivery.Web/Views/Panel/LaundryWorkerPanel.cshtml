@@ -1,0 +1,60 @@
+@using WashDelivery.Domain.Enums
+@model WashDelivery.Web.ViewModels.Orders.LaundryOrderListViewModel
+
+@{
+    ViewData["Title"] = "Panel pracownika pralni";
+
+    string GetStatusStyle(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.InLaundry => "bg-blue-50 text-blue-700 ring-blue-700/10",
+            _ => "bg-gray-50 text-gray-600 ring-gray-500/10"
+        };
+    }
+}
+
+<div class="bg-white">
+    <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-2xl lg:max-w-none">
+            <!-- Orders in Laundry -->
+            <div class="mt-6">
+                <h3 class="text-lg font-medium text-gray-900">Zamówienia w pralni</h3>
+                <div class="mt-4 space-y-4">
+                    @foreach (var order in Model.InProgressOrders)
+                    {
+                        <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
+                            <div class="px-4 py-5 sm:px-6">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <h4 class="text-lg font-medium text-gray-900">Zamówienie #@order.Id</h4>
+                                        <div class="mt-1">
+                                            <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset @GetStatusStyle(order.Status)">
+                                                @OrderStatusDisplayNames.GetDisplayName(order.Status)
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="text-sm text-gray-600">
+                                        <div class="font-medium text-gray-900 mb-2">Zamówione usługi:</div>
+                                        <ul class="list-disc pl-5 space-y-1">
+                                            @foreach (var item in order.Items)
+                                            {
+                                                <li>@item.Name - @item.Quantity szt. @(item.Weight.HasValue ? $"({item.Weight} kg)" : "") - @item.Price.ToString("C")</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (!Model.InProgressOrders.Any())
+                    {
+                        <p class="text-gray-500 text-sm">Brak zamówień w pralni</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
