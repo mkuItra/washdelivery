@@ -19,18 +19,13 @@ using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Kestrel
-builder.WebHost.ConfigureKestrel(serverOptions =>
+// Configure HSTS
+builder.Services.AddHsts(options =>
 {
-    serverOptions.Listen(IPAddress.Parse("127.0.0.1"), 5000);
-    serverOptions.Listen(IPAddress.Parse("127.0.0.1"), 5001, listenOptions =>
-    {
-        listenOptions.UseHttps();
-    });
+    options.Preload = true;
+    options.IncludeSubDomains = true;
+    options.MaxAge = TimeSpan.FromDays(365);
 });
-
-// Disable IPv6
-builder.WebHost.UseUrls("http://127.0.0.1:5000", "https://127.0.0.1:5001");
 
 // Configure timezone
 builder.Services.Configure<RequestLocalizationOptions>(options =>
@@ -39,28 +34,6 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     var supportedCultures = new[] { new System.Globalization.CultureInfo("pl-PL") };
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
-});
-
-// Configure HTTPS
-builder.Services.AddHttpsRedirection(options =>
-{
-    options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
-    options.HttpsPort = 5001;
-});
-
-// Add custom middleware to handle HTTP to HTTPS redirection for all ports
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedProto;
-});
-
-// Configure HSTS
-builder.Services.AddHsts(options =>
-{
-    options.Preload = true;
-    options.IncludeSubDomains = true;
-    options.MaxAge = TimeSpan.FromDays(365);
-    options.ExcludedHosts.Clear();
 });
 
 // Add services to the container.
@@ -186,35 +159,23 @@ using (var scope = app.Services.CreateScope())
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
 }
 
-// Order is important here
-app.UseForwardedHeaders();
-app.UseHsts();
-
-// Custom middleware to ensure all HTTP traffic is redirected to HTTPS
+// Simple HTTPS redirection middleware
 app.Use(async (context, next) =>
 {
     if (!context.Request.IsHttps)
     {
-        var host = context.Request.Host.Host;
-        if (host.Contains("localhost") || host.Contains("::1"))
-        {
-            host = "127.0.0.1";
-        }
-        var httpsUrl = $"https://{host}:5001{context.Request.Path}{context.Request.QueryString}";
-        context.Response.Redirect(httpsUrl, true);
+        var httpsUrl = $"https://{context.Request.Host}{context.Request.Path}{context.Request.QueryString}";
+        context.Response.Redirect(httpsUrl, permanent: true);
         return;
     }
     await next();
 });
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
-
-// Add CORS before auth middleware but after HTTPS redirection
 app.UseCors("SignalRPolicy");
-
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
