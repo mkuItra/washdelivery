@@ -6,14 +6,24 @@ public static class DateTimeHelper
 {
     private static readonly TimeZoneInfo _polandTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Warsaw");
 
-    public static string FormatToLocalTime(DateTime utcDateTime)
+    public static string FormatToLocalTime(DateTime dateTime)
     {
-        if (utcDateTime.Kind != DateTimeKind.Utc)
+        DateTime localTime;
+
+        if (dateTime.Kind == DateTimeKind.Utc)
         {
-            utcDateTime = DateTime.SpecifyKind(utcDateTime, DateTimeKind.Utc);
+            localTime = TimeZoneInfo.ConvertTimeFromUtc(dateTime, _polandTimeZone);
+        }
+        else if (dateTime.Kind == DateTimeKind.Local)
+        {
+            localTime = dateTime;
+        }
+        else // Unspecified
+        {
+            // Assume it's already in local time (Poland timezone)
+            localTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Local);
         }
 
-        var localTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, _polandTimeZone);
         return localTime.ToString("dd.MM.yyyy HH:mm");
     }
 } 

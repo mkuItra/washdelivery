@@ -1,44 +1,68 @@
-# AspNetTailwind
+WashDelivery - System obsługi usług prania na wynos
 
-[![Build](https://github.com/TheDayIsMyEnemy/AspNetTailwind/actions/workflows/build.yml/badge.svg)](https://github.com/TheDayIsMyEnemy/AspNetTailwind/actions/workflows/build.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+Autorzy projektu:
 
-## Requirements
+ Jakub Chimiak
+Maksymilian Jarosz
 
-- [.NET 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
-- [Node.js 20.11](https://nodejs.org/en)
-- [NPM 10.5](https://nodejs.org/en)
 
-## Installation
+Opis działania projektu:
 
-1. Navigate to the root folder
+„WashDelivery” to aplikacja webowa przeznaczona do zarządzania usługą prania na wynos.
+Aplikacja pozwala na bieżące śledzenie statusu zamówień, dzięki czemu użytkownicy mogą monitorować postęp realizacji swoich usług. 
+„WashDelivery” usprawnia procesy zarządzania pralniami, zapewnia przejrzystość operacji oraz ułatwia obsługę zamówień. Jest responsywna i dostosowana do pracy na urządzeniach mobilnych i desktopowych.
+Specyfikacja Technologii:
 
-   ```sh
-   cd src/AspNetTailwind.Web
-   ```
+Backend:
+C# .NET 8.0
+ASP.NET Core MVC
+SignalR (Real-time notifications) - działa tylko dla w widoku zamówień pralni, nowe zamówienia automatycznie wskakują na stronę
+Baza danych:
+SQLite
+Frontend: 
+HTML
+Tailwind
+JavaScript
+SignalR (Real-time notifications)
 
-2. Install packages
+Konta użytkowników: 
 
-   ```sh
-   npm install
-   ```
+Admin: 
+admin@test.com
+Test123!
 
-## Usage
 
-1. Watch css
+Courier: 
+courier@test.com
+Test123!
 
-   ```sh
-   npm run watch
-   ```
+Manager
+manager@test.com
+Test123!
 
-2. Dotnet watch
+Worker:
+worker@test.com
+Test123!
 
-   ```sh
-   dotnet watch
-   ```
+Customer:
+customer@test.com
+Test123!
 
-3. App is running on http://localhost:5000/
 
-## License
+Instrukcja pierwszego uruchomienia:
 
-[MIT](LICENSE) © [TheDayIsMyEnemy](https://github.com/TheDayIsMyEnemy/AspNetTailwind).
+baza jest już w repozytorium, wystarczy uruchomić serwer poleceniem dotnet watch w folderze WashDelivery/src/WashDelivery.Web
+
+Flow zamówienia
+Użytkownik tworzy zamówienie
+Manager pralni musi je zaakceptować, żeby pojawiło się w ogóle im to zamówienie muszą być w promieniu 10km, aktualnie jest jedna pralnia w Warszawie a konto customera ma już dodany warszawski adres
+Zaakceptowane zamówienie pokazuję się kurierowi i może je wziąć na siebie, kurier jedzie do klienta, potwierdza odbiór
+Pralnia potwierdza otrzymanie prania od kuriera, zamówienie jest w realizacji
+Pralnia zaznacza kiedy pranie jest gotowe do odbioru
+Kurierowi pojawia się nowe zamówienie
+Kurier dostarcza pranie do klienta i potwierdza dostawę
+
+
+
+
+

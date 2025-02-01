@@ -122,22 +122,6 @@ public class PanelController : Controller
                         ViewBag.LaundryAddress = laundry.Address.ToString();
                         ViewBag.LaundryEmail = laundry.ContactEmail;
                         ViewBag.LaundryPhone = laundry.ContactPhone;
-
-                        var today = DateTime.Today;
-                        ViewBag.PendingOrders = await _dbContext.Orders
-                            .CountAsync(o => o.LaundryId == user.LaundryId && 
-                                           o.Status == OrderStatus.PendingLaundryAssignment);
-
-                        ViewBag.InProgressOrders = await _dbContext.Orders
-                            .CountAsync(o => o.LaundryId == user.LaundryId && 
-                                           o.Status == OrderStatus.InLaundry);
-
-                        ViewBag.TodayDeliveries = await _dbContext.Orders
-                            .CountAsync(o => o.LaundryId == user.LaundryId && 
-                                           o.CreatedAt.Date == today &&
-                                           (o.Status == OrderStatus.ReadyForDelivery ||
-                                            o.Status == OrderStatus.OutForDelivery ||
-                                            o.Status == OrderStatus.Delivered));
                     }
                     else
                     {
@@ -665,49 +649,15 @@ public class PanelController : Controller
             return RedirectToAction("Login", "Account");
         }
 
-        // Get completed orders from both Orders and CourierCompletedOrders tables
-        var completedOrders = await _dbContext.CourierCompletedOrders
-            .Include(co => co.Order)
-                .ThenInclude(o => o.PickupAddress)
-            .Include(co => co.Order)
-                .ThenInclude(o => o.DeliveryAddress)
-            .Include(co => co.Order)
-                .ThenInclude(o => o.Items)
-            .Include(co => co.Order)
-                .ThenInclude(o => o.StatusHistory)
-            .Where(co => co.CourierId == userId)
-            .OrderByDescending(co => co.CompletedAt)
-            .Select(co => co.Order)
-            .ToListAsync();
-
-        var totalEarnings = completedOrders.Sum(o => o.DeliveryFee);
-        var totalDeliveries = completedOrders.Count;
-        
-        var averageDeliveryTime = TimeSpan.Zero;
-        if (completedOrders.Any())
-        {
-            var ordersWithDeliveryTime = completedOrders
-                .Where(o => o.DeliveredAt.HasValue)
-                .ToList();
-
-            if (ordersWithDeliveryTime.Any())
-            {
-                var totalDeliveryTime = ordersWithDeliveryTime
-                    .Select(o => o.DeliveredAt!.Value - o.CreatedAt)
-                    .Aggregate(TimeSpan.Zero, (acc, time) => acc + time);
-                averageDeliveryTime = TimeSpan.FromTicks(totalDeliveryTime.Ticks / ordersWithDeliveryTime.Count);
-            }
-        }
-
-        // Convert to DTOs using the FromOrder method
-        var orderDtos = completedOrders.Select(OrderDto.FromOrder).ToList();
+        var completedOrders = await _orderService.GetOrdersByStatusAsync(OrderStatus.Delivered);
+        var courierCompletedOrders = completedOrders
+            .Where(o => o.CourierId == userId)
+            .OrderByDescending(o => o.UpdatedAt)
+            .ToList();
 
         var viewModel = new CourierCompletedOrdersViewModel
         {
-            CompletedOrders = orderDtos,
-            TotalEarnings = totalEarnings,
-            TotalDeliveries = totalDeliveries,
-            AverageDeliveryTime = averageDeliveryTime
+            CompletedOrders = courierCompletedOrders
         };
 
         return View(viewModel);

@@ -11,60 +11,33 @@
     <div class="py-10">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="space-y-10">
-                <!-- Statistics section -->
+                <!-- Orders section -->
                 <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl p-6">
                     <div class="flex items-center justify-between">
                         <div>
                             <h2 class="text-base font-semibold leading-7 text-gray-900">Historia zamówień</h2>
                             <p class="mt-1 text-sm text-gray-500">
-                                Podsumowanie wszystkich zrealizowanych zamówień.
+                                Lista wszystkich zrealizowanych zamówień.
                             </p>
                         </div>
                     </div>
 
-                    <!-- Statistics -->
+                    <!-- Orders list -->
                     <div class="mt-6 border-t border-gray-100 pt-6">
-                        <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                            <div class="relative overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6 ring-1 ring-gray-900/5">
-                                <dt class="truncate text-sm font-medium text-gray-500">Ukończone dostawy</dt>
-                                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">@Model.TotalDeliveries</dd>
-                            </div>
-                            <div class="relative overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6 ring-1 ring-gray-900/5">
-                                <dt class="truncate text-sm font-medium text-gray-500">Średni czas dostawy</dt>
-                                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">@Model.AverageDeliveryTime.TotalMinutes.ToString("F0") min</dd>
-                            </div>
-                            <div class="relative overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6 ring-1 ring-gray-900/5">
-                                <dt class="truncate text-sm font-medium text-gray-500">Łączne zarobki</dt>
-                                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">@Model.TotalEarnings.ToString("C")</dd>
-                            </div>
-                        </dl>
-                    </div>
-                </div>
-
-                <!-- Orders list -->
-                <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
-                    <div class="px-4 py-5 sm:p-6">
-                        <div class="sm:flex sm:items-center">
-                            <div class="sm:flex-auto">
-                                <h3 class="text-base font-semibold leading-7 text-gray-900">Lista zamówień</h3>
-                                <p class="mt-1 text-sm text-gray-500">Lista wszystkich zrealizowanych zamówień.</p>
-                            </div>
-                        </div>
-                        <div class="mt-6 flow-root">
+                        <div class="mt-8 flow-root">
                             <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                                 <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
                                     <table class="min-w-full divide-y divide-gray-300">
                                         <thead>
                                             <tr>
-                                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">ID zamówienia</th>
-                                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Data dostarczenia</th>
+                                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">ID</th>
+                                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Data</th>
                                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Adres odbioru</th>
                                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Adres dostawy</th>
-                                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Opłata</th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-gray-200">
-                                            @foreach (var order in Model.CompletedOrders.OrderByDescending(o => o.UpdatedAt))
+                                            @foreach (var order in Model.CompletedOrders)
                                             {
                                                 <tr>
                                                     <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">#@order.Id</td>
@@ -79,17 +52,10 @@
                                                         <br />
                                                         @order.DeliveryAddress.PostalCode @order.DeliveryAddress.City
                                                     </td>
-                                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">@order.DeliveryFee.ToString("C")</td>
                                                 </tr>
                                             }
                                         </tbody>
                                     </table>
-                                    @if (!Model.CompletedOrders.Any())
-                                    {
-                                        <div class="text-center py-4">
-                                            <p class="text-sm text-gray-500">Brak ukończonych zamówień.</p>
-                                        </div>
-                                    }
                                 </div>
                             </div>
                         </div>

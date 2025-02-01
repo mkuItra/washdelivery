@@ -2302,6 +2302,10 @@ select{
     grid-column: span 6 / span 6;
   }
 
+  .sm\:col-span-2{
+    grid-column: span 2 / span 2;
+  }
+
   .sm\:col-start-1{
     grid-column-start: 1;
   }
@@ -2463,6 +2467,10 @@ select{
 
   .sm\:gap-8{
     gap: 2rem;
+  }
+
+  .sm\:gap-4{
+    gap: 1rem;
   }
 
   .sm\:gap-x-6{
